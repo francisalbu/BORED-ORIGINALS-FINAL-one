@@ -174,7 +174,7 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
 
 function Hero() {
   return (
-    <div className="relative w-full overflow-hidden bg-brutal-black" style={{ height: '125vh' }}>
+    <div className="relative w-full overflow-hidden bg-brutal-black hero-section">
       <video 
         autoPlay 
         loop 
@@ -693,9 +693,9 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
           onClick={onAllExperiences}
-          className="group flex items-center gap-3 bg-white hover:bg-neon-yellow text-brutal-black px-8 py-4 rounded-2xl transition-all duration-300"
+          className="group flex items-center gap-2 md:gap-3 bg-white hover:bg-neon-yellow text-brutal-black px-5 md:px-8 py-3 md:py-4 rounded-2xl transition-all duration-300"
         >
-          <span className="font-body font-bold text-sm uppercase tracking-[0.18em]">Descobre todas as experiências</span>
+          <span className="font-body font-bold text-xs md:text-sm uppercase tracking-[0.12em] md:tracking-[0.18em]">Descobre todas as experiências</span>
           <svg width="14" height="10" viewBox="0 0 14 10" fill="none" className="transition-colors duration-300"><path d="M0 5h12M8 1l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </motion.button>
       </div>
@@ -833,7 +833,7 @@ function ProximasSaidas({ onConquista, onActivity, onBooking, dbAdventures }: { 
             <div className="flex items-center gap-4 flex-1 min-w-0 w-full sm:w-auto">
               {/* Title only */}
               <div className="flex flex-col min-w-0 flex-1">
-                <span className="text-white font-body font-extrabold text-lg sm:text-2xl leading-snug truncate">{item.title}</span>
+                <span className="text-white font-body font-extrabold text-base sm:text-2xl leading-snug">{item.title}</span>
               </div>
 
               {/* Date + Spots */}
@@ -4070,14 +4070,14 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="fixed top-6 left-6 right-6 z-50 flex items-center justify-between pointer-events-none"
+        className="fixed top-3 md:top-6 left-3 md:left-6 right-3 md:right-6 z-50 flex items-center justify-between pointer-events-none"
       >
-        <div className="pointer-events-auto flex items-center gap-4 bg-white/5 backdrop-blur-xl border border-white/10 px-5 py-3 rounded-2xl">
-          <button onClick={onBack} className="text-white/50 font-body text-xs uppercase tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
+        <div className="pointer-events-auto flex items-center gap-2 md:gap-4 bg-white/5 backdrop-blur-xl border border-white/10 px-3 md:px-5 py-2 md:py-3 rounded-xl md:rounded-2xl">
+          <button onClick={onBack} className="text-white/50 font-body text-[10px] md:text-xs uppercase tracking-[0.1em] md:tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
           <div className="w-px h-3 bg-white/20" />
-          <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored Originals" className="h-7 w-auto" />
+          <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored Originals" className="h-5 md:h-7 w-auto" />
         </div>
-        <button onClick={scrollToTabs} className="pointer-events-auto bg-neon-yellow text-brutal-black px-5 py-2.5 text-xs font-body font-bold uppercase tracking-[0.1em] rounded-2xl hover:bg-white transition-colors">
+        <button onClick={scrollToTabs} className="pointer-events-auto bg-neon-yellow text-brutal-black px-3 md:px-5 py-2 md:py-2.5 text-[10px] md:text-xs font-body font-bold uppercase tracking-[0.08em] md:tracking-[0.1em] rounded-xl md:rounded-2xl hover:bg-white transition-colors">
           Ver datas →
         </button>
       </motion.div>
@@ -4205,31 +4205,56 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                   isSoldOut ? 'border-white/5 bg-white/2 opacity-50' : 'border-white/8 bg-white/[0.03] hover:border-white/18 hover:bg-white/[0.05]'
                 }`}
               >
-                <div className="flex items-stretch">
+                <div className="flex flex-col sm:flex-row items-stretch">
                   {/* Left content */}
-                  <div className="flex-1 px-6 md:px-8 py-6 md:py-7">
-                    {/* Date */}
-                    <p className="text-white/40 font-body text-xs uppercase tracking-[0.25em] mb-1.5">Data</p>
-                    <p className="text-white font-body font-bold text-lg md:text-xl leading-tight mb-5">{d.date_range ?? d.range}</p>
-                    {/* Price row */}
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-white font-body font-extrabold text-4xl leading-none tracking-tight">{d.price}</span>
-                      <span className="text-white/30 font-body text-sm">{isDormidaDate ? 'por cabine · 2 pessoas' : 'por pessoa'}</span>
+                  <div className="flex-1 px-5 md:px-8 pt-5 pb-5 md:py-7">
+                    {/* Status pill — top row */}
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-white/40 font-body text-[10px] uppercase tracking-[0.25em]">Data</p>
+                      {!isSoldOut ? (
+                        <span className={`inline-flex items-center gap-1.5 font-body text-[10px] font-semibold px-2.5 py-1 rounded-full ${
+                          isAvailable ? 'bg-white/6 text-white/50' : 'bg-white/4 text-white/30'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isAvailable ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                          {isAvailable ? spotsLabel : 'Lista de espera'}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 font-body text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white/4 text-white/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0" />
+                          Esgotado
+                        </span>
+                      )}
                     </div>
+                    <p className="text-white font-body font-bold text-xl leading-tight mb-4">{d.date_range ?? d.range}</p>
+                    {/* Price row */}
+                    <div className="flex items-baseline gap-2 mb-5">
+                      <span className="text-white font-body font-extrabold text-4xl leading-none tracking-tight">{d.price}</span>
+                      <span className="text-white/30 font-body text-xs leading-tight">{isDormidaDate ? 'por cabine · 2 pessoas' : 'por pessoa'}</span>
+                    </div>
+                    {/* CTA — always full-width on mobile, hidden on desktop */}
+                    {!isSoldOut && (
+                      <button
+                        onClick={() => {
+                          const dateObj = { id: d.id, date_range: d.date_range ?? d.range, status: d.status, spots: d.spots, price: d.price };
+                          if (isAvailable) setBookingDate(dateObj);
+                          else setWaitlistDate(dateObj);
+                        }}
+                        className={`sm:hidden w-full font-body font-bold text-[11px] uppercase tracking-[0.15em] py-4 rounded-xl transition-colors duration-300 ${
+                          isAvailable ? 'bg-neon-yellow text-brutal-black' : 'bg-white text-brutal-black'
+                        }`}>
+                        {isAvailable ? 'Reservar lugar' : 'Entrar na lista'}
+                      </button>
+                    )}
                   </div>
 
-                  {/* Right: spots + CTA */}
-                  <div className="flex flex-col items-end justify-between px-6 md:px-8 py-6 md:py-7 border-l border-white/6 min-w-fit">
+                  {/* Right: spots + CTA — desktop only */}
+                  <div className="hidden sm:flex flex-col items-end justify-between px-8 py-7 border-l border-white/6 min-w-fit">
                     {/* Spots pill */}
                     {!isSoldOut ? (
                       <span className={`inline-flex items-center gap-1.5 font-body text-[11px] font-semibold px-3 py-1.5 rounded-full ${
-                        isAvailable
-                          ? 'bg-white/6 text-white/50'
-                          : 'bg-white/4 text-white/30'
+                        isAvailable ? 'bg-white/6 text-white/50' : 'bg-white/4 text-white/30'
                       }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                          isAvailable ? 'bg-emerald-400' : 'bg-white/20'
-                        }`} />
+                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isAvailable ? 'bg-emerald-400' : 'bg-white/20'}`} />
                         {isAvailable ? spotsLabel : 'Lista de espera'}
                       </span>
                     ) : (
@@ -4239,7 +4264,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                       </span>
                     )}
                     {/* CTA */}
-                    {!isSoldOut ? (
+                    {!isSoldOut && (
                       <button
                         onClick={() => {
                           const dateObj = { id: d.id, date_range: d.date_range ?? d.range, status: d.status, spots: d.spots, price: d.price };
@@ -4247,13 +4272,11 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                           else setWaitlistDate(dateObj);
                         }}
                         className={`mt-4 font-body font-bold text-[11px] uppercase tracking-[0.15em] px-5 py-3 rounded-xl transition-colors duration-300 whitespace-nowrap ${
-                          isAvailable
-                            ? 'bg-neon-yellow text-brutal-black hover:bg-white'
-                            : 'bg-white text-brutal-black hover:bg-neon-yellow'
+                          isAvailable ? 'bg-neon-yellow text-brutal-black hover:bg-white' : 'bg-white text-brutal-black hover:bg-neon-yellow'
                         }`}>
                         {isAvailable ? 'Reservar lugar' : 'Entrar na lista'}
                       </button>
-                    ) : null}
+                    )}
                   </div>
                 </div>
               </motion.div>
