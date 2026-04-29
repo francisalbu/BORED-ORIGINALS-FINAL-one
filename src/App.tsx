@@ -606,7 +606,7 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
               transition={{ duration: 0.6, delay: i * 0.08 }}
               onClick={(e) => { if (!dragged && !(e.target as HTMLElement).closest('button')) { if ((item as any).interestOnly) { posthog.capture('interest_modal_open', { adventure: item.title }); setInterestItem({ title: item.title, adventureId: (item as any)._adventureId, teaserDate: (item as any).teaserDate ?? undefined, image: item.image, description: item.desc }); } else if (item.comingSoon) { posthog.capture('interest_modal_open', { adventure: item.title }); setInterestItem({ title: item.title, adventureId: (item as any)._adventureId, image: item.image, description: item.desc }); } else { posthog.capture('adventure_open', { adventure: item.title }); onActivity?.((item as any)._dbIndex ?? i); } } }}
               className="group relative flex-shrink-0 overflow-hidden rounded-3xl"
-              style={{ width: 'clamp(260px, 72vw, 520px)', aspectRatio: (item as any).cardAspectRatio ?? '2/3', pointerEvents: dragged ? 'none' : 'auto', cursor: 'pointer' }}
+              style={{ width: 'clamp(170px, 23vw, 500px)', aspectRatio: (item as any).cardAspectRatio ?? '2/3', pointerEvents: dragged ? 'none' : 'auto', cursor: 'pointer' }}
             >
               <img
                 src={item.image}

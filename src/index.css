@@ -16,6 +16,10 @@ body {
   overflow-x: hidden;
 }
 
+html {
+  zoom: 0.8;
+}
+
 /* Kill browser autofill blue background */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
