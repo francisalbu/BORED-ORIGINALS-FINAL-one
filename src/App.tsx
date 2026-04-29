@@ -174,7 +174,7 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
 
 function Hero() {
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-brutal-black">
+    <div className="relative w-full overflow-hidden bg-brutal-black" style={{ height: '125vh' }}>
       <video 
         autoPlay 
         loop 
@@ -192,7 +192,7 @@ function Hero() {
         transition={{ duration: 1, delay: 0.5 }}
         className="absolute bottom-10 left-6 z-10 flex flex-col gap-4"
       >
-        <h1 className="text-[11vw] md:text-[3vw] leading-[0.95] font-body font-extrabold text-white tracking-tight">
+        <h1 className="text-[9vw] md:text-[3vw] leading-[0.95] font-body font-extrabold text-white tracking-tight">
           Aventuras<br />que valem a pena<span className="text-neon-yellow">.</span>
         </h1>
       </motion.div>
@@ -605,8 +605,8 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.08 }}
               onClick={(e) => { if (!dragged && !(e.target as HTMLElement).closest('button')) { if ((item as any).interestOnly) { posthog.capture('interest_modal_open', { adventure: item.title }); setInterestItem({ title: item.title, adventureId: (item as any)._adventureId, teaserDate: (item as any).teaserDate ?? undefined, image: item.image, description: item.desc }); } else if (item.comingSoon) { posthog.capture('interest_modal_open', { adventure: item.title }); setInterestItem({ title: item.title, adventureId: (item as any)._adventureId, image: item.image, description: item.desc }); } else { posthog.capture('adventure_open', { adventure: item.title }); onActivity?.((item as any)._dbIndex ?? i); } } }}
-              className="group relative flex-shrink-0 overflow-hidden rounded-3xl"
-              style={{ width: 'clamp(170px, 23vw, 500px)', aspectRatio: (item as any).cardAspectRatio ?? '2/3', pointerEvents: dragged ? 'none' : 'auto', cursor: 'pointer' }}
+              className="adventure-card group relative flex-shrink-0 overflow-hidden rounded-3xl"
+              style={{ aspectRatio: (item as any).cardAspectRatio ?? '2/3', pointerEvents: dragged ? 'none' : 'auto', cursor: 'pointer' }}
             >
               <img
                 src={item.image}
@@ -997,7 +997,7 @@ function IntroPortugal({ onConquista }: { onConquista?: () => void }) {
 
   return (
     <section ref={sectionRef} className="relative bg-[#060608]" style={{ height: '400vh' }}>
-      <div className="sticky top-0 h-screen flex items-center justify-center">
+      <div className="sticky top-0 flex items-center justify-center" style={{ height: '125vh' }}>
 
         {/* Mapa mundo com zoom — globo */}
         <motion.div
@@ -1416,7 +1416,7 @@ function NossaHistoriaPage({ onBack }: { onBack: () => void }) {
       </motion.nav>
 
       {/* ── HERO full-bleed ── */}
-      <div className="relative h-screen w-full overflow-hidden">
+      <div className="relative w-full overflow-hidden hero-section">
         <img
           src="/foto4.jpeg"
           alt="Equipa Bored"
@@ -1464,7 +1464,7 @@ function NossaHistoriaPage({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* ── FULL SCREEN: foto esquerda + texto direita ── */}
-      <div className="relative w-full min-h-screen overflow-hidden flex flex-col md:flex-row">
+      <div className="relative w-full overflow-hidden flex flex-col md:flex-row" style={{ minHeight: '125vh' }}>
         {/* Left — full-height image */}
         <div className="relative w-full md:w-1/2 overflow-hidden" style={{ minHeight: 'clamp(420px, 100vw, 600px)' }}>
           <motion.img
@@ -2903,7 +2903,7 @@ function ConquistaPage({ onBack }: { onBack: () => void }) {
       </motion.div>
 
       {/* HERO — full screen video, same as home */}
-      <div className="relative h-screen w-full overflow-hidden bg-brutal-black">
+      <div className="relative w-full overflow-hidden bg-brutal-black hero-section">
         <video
           autoPlay
           loop

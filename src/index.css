@@ -16,8 +16,31 @@ body {
   overflow-x: hidden;
 }
 
-html {
-  zoom: 0.8;
+/* Desktop only zoom to match design scale */
+@media (min-width: 768px) {
+  html {
+    zoom: 0.8;
+  }
+}
+
+/* Hero sections: full viewport height — 100dvh on mobile, 125vh on desktop (compensates zoom: 0.8) */
+.hero-section {
+  height: 100dvh;
+}
+@media (min-width: 768px) {
+  .hero-section {
+    height: 125vh;
+  }
+}
+
+/* Card widths in the horizontal scroll */
+.adventure-card {
+  width: clamp(230px, 72vw, 400px);
+}
+@media (min-width: 768px) {
+  .adventure-card {
+    width: clamp(170px, 28vw, 560px);
+  }
 }
 
 /* Kill browser autofill blue background */
