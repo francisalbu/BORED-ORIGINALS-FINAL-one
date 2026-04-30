@@ -1727,6 +1727,30 @@ function StripePaymentForm({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  const confirmBookingServerSide = async (paymentIntentId: string) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/confirm-booking`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ paymentIntentId }),
+        },
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('[confirm-booking] error:', data);
+      } else {
+        console.log('[confirm-booking] ok:', data);
+      }
+    } catch (err) {
+      console.error('[confirm-booking] fetch error:', err);
+    }
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!stripe || !elements) return;
@@ -1754,6 +1778,8 @@ function StripePaymentForm({
       console.log('[Stripe] paymentIntent.status:', paymentIntent.status);
       if (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing' || paymentIntent.status === 'requires_capture') {
         posthog.capture('booking_payment_success', { payment_intent_status: paymentIntent.status, deposit_amount: depositAmount });
+        // Guardar a reserva diretamente (não depender apenas do webhook)
+        await confirmBookingServerSide(paymentIntent.id);
         onSuccess();
       } else {
         setErrorMsg(`Estado: ${paymentIntent.status}. Tenta novamente.`);
