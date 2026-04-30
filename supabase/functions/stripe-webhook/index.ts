@@ -33,69 +33,84 @@ async function sendConfirmationEmail({
 <!DOCTYPE html>
 <html lang="pt">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reserva Confirmada</title></head>
-<body style="margin:0;padding:0;background:#050505;font-family:'Inter',Arial,sans-serif;color:#ffffff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#050505;padding:40px 0;">
-    <tr><td align="center">
-      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Inter',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:48px 0;">
+    <tr><td align="center" style="padding:0 16px;">
+      <table width="500" cellpadding="0" cellspacing="0" style="max-width:500px;width:100%;">
 
         <!-- Logo -->
-        <tr><td align="center" style="padding-bottom:36px;">
-          <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored." height="40" style="height:40px;width:auto;" />
+        <tr><td align="center" style="padding-bottom:32px;">
+          <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored Originals" height="36" style="height:36px;width:auto;display:block;" />
         </td></tr>
 
-        <!-- Hero line -->
-        <tr><td style="border-top:1px solid rgba(255,255,255,0.08);padding-top:36px;padding-bottom:8px;">
-          <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.3);">Reserva confirmada</p>
-        </td></tr>
-        <tr><td style="padding-bottom:36px;">
-          <h1 style="margin:0;font-size:36px;font-weight:900;line-height:1;letter-spacing:-0.02em;color:#ffffff;">${activityTitle}</h1>
+        <!-- Mensagem intro -->
+        <tr><td style="padding-bottom:24px;">
+          <p style="margin:0 0 8px 0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.55);">Olá ${toName.split(' ')[0]},</p>
+          <p style="margin:0 0 8px 0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.55);">A tua reserva está confirmada. Vais receber mais detalhes sobre o ponto de encontro e o que levar nos próximos dias.</p>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.55);">Qualquer dúvida, responde a este email.</p>
         </td></tr>
 
-        <!-- Details card -->
-        <tr><td style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:0;overflow:hidden;">
+        <!-- Card branco -->
+        <tr><td style="background:#ffffff;border-radius:20px;overflow:hidden;padding:0;">
           <table width="100%" cellpadding="0" cellspacing="0">
-            <tr>
-              <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
-                <p style="margin:0 0 4px 0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);">Aventura</p>
-                <p style="margin:0;font-size:15px;font-weight:600;color:#ffffff;">${activityTitle}</p>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
-                <p style="margin:0 0 4px 0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);">Data</p>
-                <p style="margin:0;font-size:15px;font-weight:600;color:#ffffff;">${dateRange}</p>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
-                <p style="margin:0 0 4px 0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);">Pessoas</p>
-                <p style="margin:0;font-size:15px;font-weight:600;color:#ffffff;">${people} pessoa${people > 1 ? 's' : ''}</p>
-              </td>
-            </tr>
-            <tr>
-              <td style="padding:20px 24px;">
-                <p style="margin:0 0 4px 0;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);">Total pago</p>
-                <p style="margin:0;font-size:28px;font-weight:900;color:#FFE600;">${depositAmount}€</p>
-              </td>
-            </tr>
+
+            <!-- Card header com imagem + titulo -->
+            <tr><td style="padding:24px 24px 20px 24px;border-bottom:1px solid #f0f0f0;">
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-right:14px;vertical-align:top;">
+                    <div style="width:52px;height:52px;border-radius:10px;overflow:hidden;background:#e5e5e5;">
+                      <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/sobrevive-hero.jpg" alt="" width="52" height="52" style="width:52px;height:52px;object-fit:cover;display:block;" />
+                    </div>
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <p style="margin:0;font-size:17px;font-weight:700;color:#0a0a0a;">${activityTitle}</p>
+                  </td>
+                </tr>
+              </table>
+            </td></tr>
+
+            <!-- Experiência -->
+            <tr><td style="padding:16px 24px;border-bottom:1px solid #f0f0f0;">
+              <p style="margin:0 0 3px 0;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#999;">Experiência</p>
+              <p style="margin:0;font-size:15px;font-weight:600;color:#0a0a0a;">${activityTitle}</p>
+            </td></tr>
+
+            <!-- Data -->
+            <tr><td style="padding:16px 24px;border-bottom:1px solid #f0f0f0;">
+              <p style="margin:0 0 3px 0;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#999;">Data</p>
+              <p style="margin:0;font-size:15px;font-weight:600;color:#0a0a0a;">${dateRange}</p>
+            </td></tr>
+
+            <!-- Pessoas -->
+            <tr><td style="padding:16px 24px;border-bottom:1px solid #f0f0f0;">
+              <p style="margin:0 0 3px 0;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#999;">Pessoas</p>
+              <p style="margin:0;font-size:15px;font-weight:600;color:#0a0a0a;">${people} pessoa${people > 1 ? 's' : ''}</p>
+            </td></tr>
+
+            <!-- Titular -->
+            <tr><td style="padding:16px 24px;border-bottom:1px solid #f0f0f0;">
+              <p style="margin:0 0 3px 0;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#999;">Titular</p>
+              <p style="margin:0;font-size:15px;font-weight:600;color:#0a0a0a;">${toName}</p>
+              <p style="margin:2px 0 0 0;font-size:13px;color:#888;">${toEmail}</p>
+            </td></tr>
+
+            <!-- Total -->
+            <tr><td style="padding:20px 24px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td><p style="margin:0;font-size:16px;font-weight:700;color:#0a0a0a;">Total</p></td>
+                  <td align="right"><p style="margin:0;font-size:22px;font-weight:900;color:#0a0a0a;">${depositAmount}€</p></td>
+                </tr>
+              </table>
+            </td></tr>
+
           </table>
         </td></tr>
 
-        <!-- Message -->
-        <tr><td style="padding:36px 0 24px 0;">
-          <p style="margin:0 0 12px 0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.7);">Olá ${toName.split(' ')[0]},</p>
-          <p style="margin:0 0 12px 0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.7);">A tua reserva está confirmada. Vais receber mais detalhes sobre o ponto de encontro e o que levar nos próximos dias.</p>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.7);">Qualquer dúvida, responde a este email.</p>
-        </td></tr>
-
-        <!-- CTA -->
-        <tr><td style="padding-bottom:36px;">
-          <a href="https://boredoriginals.pt" style="display:inline-block;background:#FFE600;color:#050505;font-size:12px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;padding:14px 28px;border-radius:12px;text-decoration:none;">Ver as tuas aventuras →</a>
-        </td></tr>
-
         <!-- Footer -->
-        <tr><td style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;">
-          <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.2);line-height:1.6;">Bored Originals · Aventuras que valem a pena<br>Este email foi enviado para ${toEmail}</p>
+        <tr><td style="padding-top:28px;" align="center">
+          <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.2);line-height:1.7;">Bored Originals · Aventuras que valem a pena<br>${toEmail}</p>
         </td></tr>
 
       </table>
