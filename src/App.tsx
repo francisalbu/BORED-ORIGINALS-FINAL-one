@@ -180,19 +180,12 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
 function Hero() {
   return (
     <div className="relative w-full overflow-hidden bg-brutal-black hero-section">
-      {/* Mobile: static image instead of video for performance */}
-      <img
-        src="https://storage.googleapis.com/bored_tourist_media/videos/hero-thumb.jpg"
-        className="md:hidden absolute inset-0 w-full h-full object-cover"
-        alt="Bored Originals"
-        onError={e => (e.currentTarget.style.display = 'none')}
-      />
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="hidden md:block absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover"
         src="https://storage.googleapis.com/bored_tourist_media/videos/videofinal.mp4"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-brutal-black via-brutal-black/20 to-brutal-black/40"></div>
@@ -795,18 +788,26 @@ function ProximasSaidas({ onConquista, onActivity, onBooking, dbAdventures }: { 
 
   const fromDb = dbAdventures && dbAdventures.length > 0
     ? dbAdventures.filter(a => a.activity_dates?.length > 0 && !a.coming_soon && !(a.interest_only ?? false)).flatMap((a: any) =>
-        (a.activity_dates ?? []).slice(0, 1).map((d: any) => ({
+        (a.activity_dates ?? []).slice(0, 1).map((d: any) => {
+          const isDormida = a.activity_type === 'dormida';
+          const spotsNum = d.spots != null ? Number(d.spots) : null;
+          const spotsLabel = spotsNum != null
+            ? isDormida
+              ? `${spotsNum} ${spotsNum === 1 ? 'cabine disponível' : 'cabines disponíveis'}`
+              : `${spotsNum} lugares disponíveis`
+            : '';
+          return ({
           location: a.location?.toUpperCase() ?? '',
           title: a.title,
           image: a.hero_image,
           dateRange: d.date_range,
           year: '',
-          spots: d.spots != null ? `${d.spots} lugares disponíveis` : '',
-          spotsCount: d.spots != null ? Number(d.spots) : null,
+          spots: spotsLabel,
+          spotsCount: spotsNum,
           urgent: d.status === 'apreencher' || (d.spots != null && Number(d.spots) < 4),
           activityIndex: a.index ?? 0,
           _dateNum: parseDateRangeToNum(d.date_range),
-        }))
+        });})
       ).sort((a: any, b: any) => a._dateNum - b._dateNum).slice(0, 6)
     : [];
   const items = fromDb.length > 0 ? fromDb : proximasSaidas;
@@ -1010,7 +1011,7 @@ function IntroPortugal({ onConquista }: { onConquista?: () => void }) {
 
   return (
     <section ref={sectionRef} className="relative bg-[#060608]" style={{ height: '400vh' }}>
-      <div className="sticky top-0 flex items-center justify-center" style={{ height: '125vh' }}>
+      <div className="sticky top-0 flex items-center justify-center" style={{ height: '100vh' }}>
 
         {/* Mapa mundo com zoom — globo */}
         <motion.div
@@ -1477,7 +1478,7 @@ function NossaHistoriaPage({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* ── FULL SCREEN: foto esquerda + texto direita ── */}
-      <div className="relative w-full overflow-hidden flex flex-col md:flex-row" style={{ minHeight: '125vh' }}>
+      <div className="relative w-full overflow-hidden flex flex-col md:flex-row" style={{ minHeight: '100vh' }}>
         {/* Left — full-height image */}
         <div className="relative w-full md:w-1/2 overflow-hidden" style={{ minHeight: 'clamp(420px, 100vw, 600px)' }}>
           <motion.img
@@ -3749,6 +3750,19 @@ function Footer() {
           </div>
         </div>
 
+        {/* Partner logos */}
+        <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
+          <p className="text-white/30 font-body text-[10px] uppercase tracking-[0.3em] font-bold md:mr-2">Apoios</p>
+          <div className="flex items-center gap-8">
+            <div className="bg-white rounded-lg px-3 py-2">
+              <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/logo.png" alt="Logo parceiro" className="h-14 md:h-16 w-auto" />
+            </div>
+            <div className="bg-white rounded-lg px-3 py-2">
+              <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/logo_turismodeportugal.png" alt="Turismo de Portugal" className="h-14 md:h-16 w-auto" />
+            </div>
+          </div>
+        </div>
+
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-white/40 font-body text-xs uppercase tracking-widest text-center">
           <p>&copy; {new Date().getFullYear()} Bored Original.</p>
@@ -4118,9 +4132,9 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
               {data.title}
             </h1>
             <div className="flex flex-wrap justify-center gap-2">
-              {[['⏱', data.duration], ['💪', data.difficulty], ['👥', `Máx. ${data.maxPeople} pessoas`], ['💶', `A partir de ${data.price}`]].map(([icon, val]) => (
-                <div key={val} className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/15 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-white/80 text-[10px] md:text-xs uppercase tracking-[0.08em] md:tracking-[0.1em]">
-                  <span className="text-xs md:text-sm">{icon}</span><span>{val}</span>
+              {[['⏱', data.duration], ['💪', data.difficulty], ['👥', `Máx. ${data.maxPeople}`], ['💶', `${data.price}`]].map(([icon, val]) => (
+                <div key={val} className="flex items-center gap-1 bg-white/10 backdrop-blur-sm border border-white/15 px-2 py-1 md:px-4 md:py-2 rounded-full text-white/80 text-[9px] md:text-xs uppercase tracking-[0.04em] md:tracking-[0.1em]">
+                  <span className="text-[10px] md:text-sm">{icon}</span><span>{val}</span>
                 </div>
               ))}
             </div>
@@ -4233,22 +4247,9 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                 <div className="flex flex-col sm:flex-row items-stretch">
                   {/* Left content */}
                   <div className="flex-1 px-5 md:px-8 pt-5 pb-5 md:py-7">
-                    {/* Status pill — top row */}
+                    {/* Status pill — top row (mobile only; desktop shows in right column) */}
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-white/40 font-body text-[10px] uppercase tracking-[0.25em]">Data</p>
-                      {!isSoldOut ? (
-                        <span className={`inline-flex items-center gap-1.5 font-body text-[10px] font-semibold px-2.5 py-1 rounded-full ${
-                          isAvailable ? 'bg-white/6 text-white/50' : 'bg-white/4 text-white/30'
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isAvailable ? 'bg-emerald-400' : 'bg-white/20'}`} />
-                          {isAvailable ? spotsLabel : 'Lista de espera'}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 font-body text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white/4 text-white/20">
-                          <span className="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0" />
-                          Esgotado
-                        </span>
-                      )}
                     </div>
                     <p className="text-white font-body font-bold text-xl leading-tight mb-4">{d.date_range ?? d.range}</p>
                     {/* Price row */}
@@ -4442,29 +4443,19 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
         <div className="overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           <div className="flex md:justify-center whitespace-nowrap min-w-max md:min-w-0 mx-auto" style={{ padding: '0 16px' }}>
             {tabs.map(tab => {
-              const icons: Record<string, string> = {
-                inclui: '✦',
-                itinerario: '◈',
-                material: '⊞',
-                faqs: '?',
-                cancelamentos: '↩',
-              };
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className="relative flex flex-col items-center gap-1.5 transition-all duration-300"
+                  className="relative flex items-center transition-all duration-300"
                   style={{
-                    padding: 'clamp(14px, 3vw, 22px) clamp(16px, 4vw, 36px) 18px',
+                    padding: 'clamp(16px, 3vw, 24px) clamp(16px, 4vw, 36px)',
                     color: isActive ? '#FFE600' : 'rgba(255,255,255,0.35)',
                     borderBottom: isActive ? '2px solid #FFE600' : '2px solid transparent',
                     marginBottom: -1,
                   }}
                 >
-                  <span style={{ fontSize: 16, fontWeight: 700, opacity: isActive ? 1 : 0.6, transition: 'all 0.3s' }}>
-                    {icons[tab.id] ?? '·'}
-                  </span>
                   <span style={{
                     fontSize: 12,
                     fontWeight: 700,
@@ -4475,19 +4466,6 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                   }}>
                     {tab.label}
                   </span>
-                  {isActive && (
-                    <span style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: 32,
-                      height: 2,
-                      background: '#FFE600',
-                      borderRadius: 2,
-                      boxShadow: '0 0 12px rgba(255,230,0,0.8)',
-                    }} />
-                  )}
                 </button>
               );
             })}

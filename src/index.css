@@ -14,23 +14,25 @@ body {
   background-color: var(--color-brutal-black);
   color: white;
   overflow-x: hidden;
-  max-width: 100vw;
 }
 
-/* Desktop only zoom to match design scale */
+/* Desktop zoom: scale to 80% so design matches intended proportions.
+   Width calc(100vw/0.8) compensates so html fills full viewport after zoom. */
 @media (min-width: 768px) {
   html {
     zoom: 0.8;
+    width: calc(100vw / 0.8);
+    min-height: calc(100vh / 0.8);
   }
 }
 
-/* Hero sections: full viewport height — 100dvh on mobile, 125vh on desktop (compensates zoom: 0.8) */
+/* Hero sections: full viewport height */
 .hero-section {
   height: 100dvh;
 }
 @media (min-width: 768px) {
   .hero-section {
-    height: 125vh;
+    height: calc(100dvh / 0.8);
   }
 }
 
