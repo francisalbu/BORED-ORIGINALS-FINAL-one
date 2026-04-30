@@ -624,7 +624,7 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
               {(item as any).hoverVideo && (
                 <video
                   src={(item as any).hoverVideo}
-                  className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                  className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
                   autoPlay
                   loop
                   muted
@@ -1942,6 +1942,7 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
             activityId: date.id,
             activityDateId: date.id,
             activityTitle: activityTitle ?? 'Experiência Bored Originals',
+            activityImage: activityImage ?? '',
             dateRange: date.date_range,
             people,
             vespas,
@@ -1952,6 +1953,7 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
             activityId: date.id,
             activityDateId: date.id,
             activityTitle: activityTitle ?? 'Experiência Bored Originals',
+            activityImage: activityImage ?? '',
             dateRange: date.date_range,
             people: isDormida ? 2 : people,
             vespas: 0,
@@ -3790,7 +3792,7 @@ function Footer() {
           <p className="text-white/30 font-body text-[10px] uppercase tracking-[0.3em] font-bold md:mr-2">Apoios</p>
           <div className="flex items-center gap-8">
             <div className="bg-white rounded-lg px-3 py-2">
-              <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/logo.png" alt="Logo parceiro" className="h-14 md:h-16 w-auto" />
+              <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/logosbe.png" alt="Logo parceiro" className="h-14 md:h-16 w-auto" />
             </div>
             <div className="bg-white rounded-lg px-3 py-2">
               <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/logo_turismodeportugal.png" alt="Turismo de Portugal" className="h-14 md:h-16 w-auto" />
@@ -4292,6 +4294,15 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                       <span className="text-white font-body font-extrabold text-4xl leading-none tracking-tight">{d.price}</span>
                       <span className="text-white/30 font-body text-xs leading-tight">{isDormidaDate ? 'por cabine · 2 pessoas' : 'por pessoa'}</span>
                     </div>
+                    {/* Spots — mobile only */}
+                    {!isSoldOut && (
+                      <div className="sm:hidden flex items-center gap-1.5 mb-4">
+                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isAvailable ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                        <span className="font-body text-[11px] font-semibold text-white/50">
+                          {isAvailable ? spotsLabel : 'Lista de espera'}
+                        </span>
+                      </div>
+                    )}
                     {/* CTA — always full-width on mobile, hidden on desktop */}
                     {!isSoldOut && (
                       <button
@@ -4449,11 +4460,11 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
       {data.review.text && dbAdv?.slug !== 'caminhos-de-santiago' && <div className="border-b border-white/6 mt-24">
         <div className="flex flex-col md:flex-row" style={{ minHeight: 760 }}>
           {/* Foto */}
-          <div className="md:w-[62%] relative p-6" style={{ minHeight: 500 }}>
-            <img src={data.review.image} alt="" className="w-full h-full object-cover saturate-[1.1] rounded-3xl" style={{ position: 'absolute', inset: '1.5rem' }} />
+          <div className="w-full md:w-[62%] relative" style={{ minHeight: 380, height: '55vw', maxHeight: 760 }}>
+            <img src={data.review.image} alt="" className="absolute inset-0 w-full h-full object-cover object-center saturate-[1.1] md:rounded-none" style={{ borderRadius: '0' }} />
           </div>
           {/* Quote */}
-          <div className="md:w-[38%] bg-brutal-black flex flex-col items-center justify-center px-10 md:px-14 py-16 text-center">
+          <div className="md:w-[38%] bg-brutal-black flex flex-col items-center justify-center px-8 md:px-14 py-12 md:py-16 text-center">
             <div className="text-neon-yellow font-body font-extrabold leading-none mb-8" style={{ fontSize: '5rem' }}>&rdquo;</div>
             <p className="text-white font-body font-medium leading-relaxed mb-10 italic" style={{ fontSize: 'clamp(1rem, 1.6vw, 1.35rem)', maxWidth: 420 }}>{data.review.text}</p>
             <div className="flex flex-col items-center gap-2">
@@ -4473,9 +4484,11 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
       <div className="relative" style={{ background: 'rgba(8,8,8,0.98)', backdropFilter: 'blur(32px)', boxShadow: '0 8px 60px rgba(0,0,0,0.8)' }}>
         {/* top accent line */}
         <div style={{ height: 2, background: 'linear-gradient(90deg, transparent 0%, #FFE600 20%, #FFE600 80%, transparent 100%)' }} />
-        {/* Right fade hint — only on mobile */}
-        <div className="pointer-events-none absolute right-0 top-[2px] bottom-0 w-16 md:hidden z-10" style={{ background: 'linear-gradient(to left, rgba(8,8,8,0.98) 30%, transparent 100%)' }} />
-        <div className="overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+        {/* Right fade + arrow hint — only on mobile, sits outside the scroll container */}
+        <div className="pointer-events-none absolute right-0 top-[2px] bottom-0 w-20 md:hidden z-10 flex items-center justify-end pr-2" style={{ background: 'linear-gradient(to left, rgba(8,8,8,1) 30%, transparent 100%)' }}>
+          <svg className="w-4 h-4 text-white/40 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+        </div>
+        <div className="overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <div className="flex md:justify-center whitespace-nowrap min-w-max md:min-w-0 mx-auto" style={{ padding: '0 16px' }}>
             {tabs.map(tab => {
               const isActive = activeTab === tab.id;
@@ -4731,7 +4744,7 @@ function PaymentSuccessPage({ onHome }: { onHome: () => void }) {
           Estás dentro<span className="text-neon-yellow">.</span>
         </h1>
         <p className="text-white/40 text-sm leading-relaxed mb-8">
-          O sinal foi recebido com sucesso. Vais receber um email de confirmação em breve com todos os detalhes da tua reserva.
+          O teu pagamento foi recebido com sucesso. Vais receber um email de confirmação em breve com todos os detalhes da tua reserva.
         </p>
 
         <button

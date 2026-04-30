@@ -15,9 +15,9 @@ const supabase = createClient(
 );
 
 async function sendConfirmationEmail({
-  toEmail, toName, activityTitle, dateRange, people, depositAmount,
+  toEmail, toName, activityTitle, activityImage, dateRange, people, depositAmount,
 }: {
-  toEmail: string; toName: string; activityTitle: string;
+  toEmail: string; toName: string; activityTitle: string; activityImage?: string;
   dateRange: string; people: number; depositAmount: number;
 }) {
   const resendKey = Deno.env.get('RESEND_API_KEY');
@@ -54,7 +54,7 @@ async function sendConfirmationEmail({
                 <tr>
                   <td style="padding-right:14px;vertical-align:top;">
                     <div style="width:52px;height:52px;border-radius:10px;overflow:hidden;background:#e5e5e5;">
-                      <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/sobrevive-hero.jpg" alt="" width="52" height="52" style="width:52px;height:52px;object-fit:cover;display:block;" />
+                      ${activityImage ? `<img src="${activityImage}" alt="" width="52" height="52" style="width:52px;height:52px;object-fit:cover;display:block;" />` : ''}
                     </div>
                   </td>
                   <td style="vertical-align:middle;">
@@ -248,6 +248,7 @@ Deno.serve(async (req) => {
         toEmail: primaryHolder.email,
         toName: primaryHolder.name || 'Aventureiro',
         activityTitle: meta.activityTitle || 'Experiência Bored Originals',
+        activityImage: meta.activityImage || '',
         dateRange: meta.dateRange || '',
         people: parseInt(meta.people || '1'),
         depositAmount: parseFloat(meta.depositAmount || meta.totalAmount || '0'),
