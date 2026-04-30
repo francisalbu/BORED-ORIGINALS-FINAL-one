@@ -17,9 +17,14 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '');
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+const PHONE_REGEX = /^(\+351|00351|351)?[\s-]?(9[1236]\d{7}|2\d{8}|[23]\d{7})$/;
 
 function isValidEmail(email: string): boolean {
   return EMAIL_REGEX.test(email.trim());
+}
+
+function isValidPhone(phone: string): boolean {
+  return PHONE_REGEX.test(phone.trim().replace(/\s/g, ''));
 }
 
 function slugify(s: string): string {
@@ -175,12 +180,19 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
 function Hero() {
   return (
     <div className="relative w-full overflow-hidden bg-brutal-black hero-section">
-      <video 
-        autoPlay 
-        loop 
-        muted 
+      {/* Mobile: static image instead of video for performance */}
+      <img
+        src="https://storage.googleapis.com/bored_tourist_media/videos/hero-thumb.jpg"
+        className="md:hidden absolute inset-0 w-full h-full object-cover"
+        alt="Bored Originals"
+        onError={e => (e.currentTarget.style.display = 'none')}
+      />
+      <video
+        autoPlay
+        loop
+        muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        className="hidden md:block absolute inset-0 w-full h-full object-cover"
         src="https://storage.googleapis.com/bored_tourist_media/videos/videofinal.mp4"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-brutal-black via-brutal-black/20 to-brutal-black/40"></div>
@@ -611,6 +623,7 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
               <img
                 src={item.image}
                 alt={item.title}
+                loading="lazy"
                 className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out brightness-[1.05] contrast-[1.05] ${ (item as any).hoverVideo ? 'group-hover:opacity-0' : 'group-hover:scale-105'}`}
                 style={{ objectPosition: (item as any).objectPosition ?? 'center center', filter: `saturate(${(item as any).imageSaturate ?? 1.3}) brightness(1.05) contrast(1.05)` }}
                 draggable={false}
@@ -618,7 +631,7 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
               {(item as any).hoverVideo && (
                 <video
                   src={(item as any).hoverVideo}
-                  className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                  className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
                   autoPlay
                   loop
                   muted
@@ -1962,10 +1975,21 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
   const updateHolder = (i: number, field: keyof HolderForm, val: any) =>
     setHolders(prev => prev.map((h, idx) => idx === i ? { ...h, [field]: val } : h));
 
-  const step1Valid = holders[0].name !== '' && holders[0].email !== '' && holders[0].phone !== '';
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const step1Valid = holders[0].name.trim() !== '' && isValidEmail(holders[0].email) && isValidPhone(holders[0].phone);
   const step2Valid = bookingType === 'vespa'
-    ? holders.slice(0, vespas).every(h => h.name && h.email && h.phone)
+    ? holders.slice(0, vespas).every(h => h.name && isValidEmail(h.email) && isValidPhone(h.phone))
     : step1Valid;
+
+  const validateAndContinue = () => {
+    const errs: Record<string, string> = {};
+    if (!holders[0].name.trim()) errs.name = 'Insere o teu nome.';
+    if (!isValidEmail(holders[0].email)) errs.email = 'Email inválido (ex: joao@exemplo.com).';
+    if (!isValidPhone(holders[0].phone)) errs.phone = 'Número inválido. Usa formato português (ex: 912 345 678).';
+    setFormErrors(errs);
+    if (Object.keys(errs).length === 0) setStep(3);
+  };
 
   const currentTotal = bookingType === 'vespa' ? total : standardTotal;
   // Steps for standard: 1=details+people, 3=confirm, 4=payment
@@ -2067,13 +2091,14 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
                         <div key={f}>
                           <label className={labelCls}>{label}</label>
                           <input type={type} placeholder={ph} value={(holders[0] as any)[f]}
-                            onChange={e => updateHolder(0, f as keyof HolderForm, e.target.value)}
-                            className={inputCls} />
+                            onChange={e => { updateHolder(0, f as keyof HolderForm, e.target.value); if (formErrors[f]) setFormErrors(prev => { const n = {...prev}; delete n[f]; return n; }); }}
+                            className={`${inputCls} ${formErrors[f] ? 'border-red-400/70' : ''}`} />
+                          {formErrors[f] && <p className="text-red-400 text-xs mt-1.5">{formErrors[f]}</p>}
                         </div>
                       ))}
                     </div>
                   </div>
-                  <button onClick={() => setStep(3)} disabled={!step1Valid} className={primaryBtn}>Continuar</button>
+                  <button onClick={validateAndContinue} className={primaryBtn}>Continuar</button>
                 </div>
               )}
 
