@@ -2039,7 +2039,20 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
     >
       {/* ── Top bar ── */}
       <div className="flex-shrink-0 bg-[#0a0a0a] border-b border-white/[0.08] px-6 md:px-12 py-4 flex items-center">
-        <button onClick={onClose} className={ghostBtn}>
+        <button onClick={() => {
+          if (bookingType === 'vespa') {
+            if (step === 1) onClose();
+            else if (step === 2) setStep(1);
+            else if (step === 3) setStep(2);
+            else if (step === 4) setStep(3);
+            else onClose();
+          } else {
+            if (step === 1) onClose();
+            else if (step === 3) setStep(1);
+            else if (step === 4) setStep(3);
+            else onClose();
+          }
+        }} className={ghostBtn}>
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           Voltar
         </button>
@@ -2186,10 +2199,6 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
                     </div>
                   </div>
 
-                  <button onClick={() => setStep(1)} disabled={isLoading} className={ghostBtn}>
-                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    Voltar
-                  </button>
                 </div>
               )}
 
@@ -4724,20 +4733,7 @@ function PaymentSuccessPage({ onHome }: { onHome: () => void }) {
         <p className="text-white/40 text-sm leading-relaxed mb-8">
           O sinal foi recebido com sucesso. Vais receber um email de confirmação em breve com todos os detalhes da tua reserva.
         </p>
-        <div className="bg-white/5 border border-white/8 rounded-2xl px-5 py-4 mb-8 text-left space-y-2">
-          <p className="text-white/30 text-[9px] uppercase tracking-[0.3em] mb-3">Próximos passos</p>
-          {[
-            ['📧', 'Confirmação por email com os detalhes'],
-            ['📍', 'Ponto de encontro em Belmonte'],
-            ['🛵', 'Entrega da vespa + briefing da rota'],
-            ['💰', 'Restante 50% pago à chegada'],
-          ].map(([icon, text]) => (
-            <div key={text} className="flex items-start gap-3">
-              <span className="text-base mt-0.5">{icon}</span>
-              <p className="text-white/55 text-xs leading-relaxed">{text}</p>
-            </div>
-          ))}
-        </div>
+
         <button
           onClick={onHome}
           className="w-full bg-neon-yellow text-black py-4 rounded-2xl font-bold text-sm uppercase tracking-[0.12em] hover:bg-white transition-colors"
@@ -4978,7 +4974,28 @@ function AppRoutes() {
     getAdventures().then(setDbAdventures).catch(console.error);
     // Handle legacy ?payment=success query
     const params = new URLSearchParams(window.location.search);
-    if (params.get('payment') === 'success') navigate('/pagamento-confirmado');
+    if (params.get('payment') === 'success') {
+      // Quando o Stripe redireciona de volta (MB WAY, Revolut Pay, etc.)
+      // o payment_intent id vem na query string — chamar confirm-booking para guardar na BD
+      const paymentIntentId = params.get('payment_intent');
+      if (paymentIntentId) {
+        fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/confirm-booking`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({ paymentIntentId }),
+          },
+        )
+          .then(r => r.json())
+          .then(d => console.log('[confirm-booking redirect]', d))
+          .catch(e => console.error('[confirm-booking redirect error]', e));
+      }
+      navigate('/pagamento-confirmado');
+    }
   }, []);
 
   const goToActivity = useCallback((index: number) => {
