@@ -198,15 +198,24 @@ Deno.serve(async (req) => {
     const intent = event.data.object as Stripe.PaymentIntent;
     const meta = intent.metadata ?? {};
 
-    // Evitar duplicados: verificar se já existe booking para este payment intent
+    // Verificar se já existe booking para este payment intent
     const { data: existing } = await supabase
       .from('bookings')
-      .select('id')
+      .select('id, payment_status')
       .eq('stripe_session_id', intent.id)
       .maybeSingle();
 
     if (existing) {
-      console.log(`ℹ️ Booking already exists for intent ${intent.id}`);
+      // Se existir mas estava em 'processing' (MB WAY async), atualizar para confirmado
+      if (existing.payment_status === 'processing' || existing.payment_status === 'pending') {
+        await supabase
+          .from('bookings')
+          .update({ payment_status: 'paid', status: 'confirmed', deposit_paid: true })
+          .eq('id', existing.id);
+        console.log(`✅ Booking ${existing.id} updated from processing → confirmed for intent ${intent.id}`);
+      } else {
+        console.log(`ℹ️ Booking already confirmed for intent ${intent.id}`);
+      }
       return new Response('ok', { status: 200 });
     }
 
