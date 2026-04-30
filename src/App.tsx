@@ -4056,7 +4056,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
         date_range: d.date_range as string,
         status: d.status as string,
         spots: d.spots as number,
-        price: d.price as string,
+        price: (dbAdv.price ?? d.price) as string,
       }))
     : (activityDates[activityIndex] ?? activityDates[0]);
 
@@ -4088,7 +4088,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
   }
 
   return (
-    <div className="min-h-screen bg-brutal-black text-white font-body">
+    <div className="min-h-screen bg-brutal-black text-white font-body overflow-x-hidden">
 
       {/* Top nav */}
       <motion.div
@@ -4108,7 +4108,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
       </motion.div>
 
       {/* ── HERO — foto centrada + título centrado ── */}
-      <div className="relative w-full overflow-hidden" style={{ height: '100vh' }}>
+      <div className="relative w-full overflow-hidden hero-section">
         <img src={data.heroImage} alt={data.title} className="absolute inset-0 w-full h-full object-cover saturate-[1.1]" />
         <div className="absolute inset-0 bg-gradient-to-t from-brutal-black via-brutal-black/20 to-brutal-black/55" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-20 px-6 text-center z-10">
@@ -4117,10 +4117,10 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
             <h1 className="text-[clamp(2.8rem,10vw,10rem)] font-body font-extrabold text-white leading-[0.82] tracking-tight mb-10">
               {data.title}
             </h1>
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-2">
               {[['⏱', data.duration], ['💪', data.difficulty], ['👥', `Máx. ${data.maxPeople} pessoas`], ['💶', `A partir de ${data.price}`]].map(([icon, val]) => (
-                <div key={val} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/15 px-4 py-2 rounded-full text-white/80 text-xs uppercase tracking-[0.1em]">
-                  <span>{icon}</span><span>{val}</span>
+                <div key={val} className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/15 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-white/80 text-[10px] md:text-xs uppercase tracking-[0.08em] md:tracking-[0.1em]">
+                  <span className="text-xs md:text-sm">{icon}</span><span>{val}</span>
                 </div>
               ))}
             </div>
