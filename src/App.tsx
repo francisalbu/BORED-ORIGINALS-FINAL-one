@@ -1907,6 +1907,39 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const payFull = true; // always pay full amount
 
+  // ── Intercept browser back button ────────────────────────────────────────
+  const stepRef = useRef(step);
+  useEffect(() => { stepRef.current = step; }, [step]);
+
+  useEffect(() => {
+    // Push a sentinel state so the browser has something to "go back to"
+    history.pushState({ bookingModal: true }, '');
+
+    const handlePopState = () => {
+      const s = stepRef.current;
+      // Re-push so the next back press is also intercepted
+      history.pushState({ bookingModal: true }, '');
+      // Mirror the same logic as the "Voltar" button
+      if (bookingType === 'vespa') {
+        if (s === 1) onClose();
+        else if (s === 2) setStep(1);
+        else if (s === 3) setStep(2);
+        else if (s === 4) setStep(3);
+        else onClose();
+      } else {
+        if (s === 1) onClose();
+        else if (s === 3) setStep(1);
+        else if (s === 4) setStep(3);
+        else onClose();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (!date) return null;
 
   // Parse numeric base price from Supabase string e.g. "349€" → 349
