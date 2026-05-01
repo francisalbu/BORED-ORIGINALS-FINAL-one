@@ -3065,10 +3065,10 @@ function ConquistaPage({ onBack }: { onBack: () => void }) {
                 className="bg-neon-yellow text-brutal-black px-6 py-3 text-xs font-bold uppercase tracking-[0.15em] rounded-xl hover:bg-white transition-colors">
                 Ver datas →
               </motion.a>
-              <a href="#programa"
+              <button onClick={() => document.getElementById('programa')?.scrollIntoView({ behavior: 'smooth' })}
                 className="border border-white/20 text-white/50 px-6 py-3 text-xs font-semibold uppercase tracking-[0.12em] rounded-xl hover:border-white/50 hover:text-white/80 transition-all">
                 Ver programa
-              </a>
+              </button>
             </div>
 
           </motion.div>
