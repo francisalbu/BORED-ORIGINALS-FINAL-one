@@ -4074,6 +4074,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
   const [activeTab, setActiveTab] = useState<string>('inclui');
   const [curiosityIndex, setCuriosityIndex] = useState(0);
   const tabsRef = useRef<HTMLDivElement>(null);
+  const tabMenuRef = useRef<HTMLDivElement>(null);
   const [bookingDate, setBookingDate] = useState<{ id: string; date_range: string; status: string; spots: number; price: string } | null>(null);
   const [waitlistDate, setWaitlistDate] = useState<{ id: string; date_range: string; status: string; spots: number; price: string } | null>(null);
 
@@ -4260,7 +4261,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
               <button onClick={scrollToTabs} className="bg-white text-brutal-black font-body font-bold text-xs uppercase tracking-[0.18em] px-7 py-3.5 rounded-xl hover:bg-neon-yellow transition-colors duration-300">
                 Ver datas
               </button>
-              <button onClick={() => { setActiveTab('itinerario'); scrollToTabs(); }} className="border border-white/20 text-white font-body font-semibold text-xs uppercase tracking-[0.18em] px-7 py-3.5 rounded-xl hover:bg-white/8 transition-colors duration-300">
+              <button onClick={() => { setActiveTab('itinerario'); tabMenuRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="border border-white/20 text-white font-body font-semibold text-xs uppercase tracking-[0.18em] px-7 py-3.5 rounded-xl hover:bg-white/8 transition-colors duration-300">
                 Ver programa
               </button>
             </div>
@@ -4512,7 +4513,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
       </div>}
 
       {/* ── TABS WRAPPER ── */}
-      <div>
+      <div ref={tabMenuRef}>
       {/* ── TAB MENU ── */}
       <div className="relative" style={{ background: 'rgba(8,8,8,0.98)', backdropFilter: 'blur(32px)', boxShadow: '0 8px 60px rgba(0,0,0,0.8)' }}>
         {/* top accent line */}
