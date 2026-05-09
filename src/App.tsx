@@ -69,7 +69,7 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
           {/* Right links — desktop only */}
           <div className="hidden md:flex items-center gap-10">
             <button onClick={onHistoria} className="text-white font-body text-base font-semibold tracking-[0.1em] uppercase hover:text-neon-yellow transition-colors duration-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">Sobre Nós</button>
-            <button onClick={onApoio} className="text-white font-body text-base font-semibold tracking-[0.1em] uppercase hover:text-neon-yellow transition-colors duration-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">Apoio</button>
+            <button onClick={onApoio} className="text-white font-body text-base font-semibold tracking-[0.1em] uppercase hover:text-neon-yellow transition-colors duration-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">FAQs</button>
             <button onClick={onAllExperiences} className="bg-neon-yellow text-brutal-black px-5 py-2 text-sm font-body font-bold uppercase tracking-[0.12em] rounded-lg hover:bg-white transition-colors duration-300">
               Reservar
             </button>
@@ -136,7 +136,7 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
             {[
               { label: 'Experiências', action: () => { onAllExperiences?.(); setMenuOpen(false); } },
               { label: 'Sobre Nós',    action: () => { onHistoria?.();      setMenuOpen(false); } },
-              { label: 'Apoio',        action: () => { onApoio?.();         setMenuOpen(false); } },
+              { label: 'FAQs',        action: () => { onApoio?.();         setMenuOpen(false); } },
             ].map(({ label, action }, i) => (
               <motion.button
                 key={label}
@@ -358,7 +358,8 @@ function NotifyModal({ title, onClose }: { title: string; onClose: () => void })
                   if (emailError) setEmailError(null);
                 }}
                 required
-                className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-neon-yellow/60 transition-colors"
+                onInvalid={e => { const el = e.target as HTMLInputElement; el.setCustomValidity(el.validity.valueMissing ? 'Por favor insere o teu email.' : 'Insere um email válido (ex: joao@exemplo.com).'); }}
+                onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
               />
               {emailError && <p className="text-red-400 text-xs">{emailError}</p>}
               <button type="submit"
@@ -463,7 +464,9 @@ function InterestModal({ title, adventureId, teaserDate, image, description, onC
                   value={name}
                   onChange={e => { setName(e.target.value); if (error) setError(null); }}
                   required
-                  className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-neon-yellow/60 transition-colors"
+                  onInvalid={e => (e.target as HTMLInputElement).setCustomValidity('Por favor insere o teu nome.')}
+                  onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
+                  className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/50 focus:outline-none focus:border-neon-yellow/60 transition-colors"
                 />
                 <input
                   type="email"
@@ -471,7 +474,9 @@ function InterestModal({ title, adventureId, teaserDate, image, description, onC
                   value={email}
                   onChange={e => { setEmail(e.target.value); if (error) setError(null); }}
                   required
-                  className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-neon-yellow/60 transition-colors"
+                  onInvalid={e => { const el = e.target as HTMLInputElement; el.setCustomValidity(el.validity.valueMissing ? 'Por favor insere o teu email.' : 'Insere um email válido (ex: joao@exemplo.com).'); }}
+                  onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
+                  className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/50 focus:outline-none focus:border-neon-yellow/60 transition-colors"
                 />
                 {error && <p className="text-red-400 text-xs">{error}</p>}
                 <button type="submit"
@@ -571,7 +576,7 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
           className="flex flex-col md:flex-row md:items-end justify-between gap-6"
         >
           <div>
-            <p className="text-white/60 font-body text-[10px] uppercase tracking-[0.4em] mb-4">As nossas experiências</p>
+            <p className="text-white/80 font-body text-xs uppercase tracking-[0.4em] mb-4">As nossas experiências</p>
             <h2 className="text-4xl md:text-7xl font-body font-bold text-white leading-[0.9]">
               Bored.<br/><span className="text-neon-yellow">Originals</span>
             </h2>
@@ -582,7 +587,7 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
               onClick={() => scrollRef.current?.scrollBy({ left: 480, behavior: 'smooth' })}
               className="flex items-center gap-3 text-white/30 hover:text-white transition-colors duration-300 group/arrow"
             >
-              <span className="font-body text-[10px] uppercase tracking-widest text-white/70">Arrasta para explorar</span>
+              <span className="font-body text-xs uppercase tracking-widest text-white">Arrasta para explorar</span>
               <div className="w-9 h-9 rounded-full border border-white/15 group-hover/arrow:border-neon-yellow/60 flex items-center justify-center transition-colors duration-300">
                 <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M0 5h12M8 1l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
@@ -660,20 +665,20 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
                 {/* Description + buttons — hidden by default, slide in on hover */}
                 <div className="grid transition-all duration-500 ease-out grid-rows-[0fr] group-hover:grid-rows-[1fr] group-hover:mt-3">
                   <div className="overflow-hidden">
-                    <p className="text-white/55 font-body text-xs leading-relaxed mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                    <p className="text-white/80 font-body text-base leading-relaxed mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
                       {item.desc}
                     </p>
                     <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">
                         {(item as any).interestOnly ? (
-                          <button onClick={e => { e.stopPropagation(); posthog.capture('interest_modal_open', { adventure: item.title }); setInterestItem({ title: item.title, adventureId: (item as any)._adventureId, teaserDate: (item as any).teaserDate ?? undefined, image: item.image, description: item.desc }); }} className="bg-white/15 text-white px-4 py-2 text-[10px] font-body font-bold uppercase tracking-[0.15em] rounded-xl hover:bg-white hover:text-black transition-colors">
+                          <button onClick={e => { e.stopPropagation(); posthog.capture('interest_modal_open', { adventure: item.title }); setInterestItem({ title: item.title, adventureId: (item as any)._adventureId, teaserDate: (item as any).teaserDate ?? undefined, image: item.image, description: item.desc }); }} className="bg-white/15 text-white px-5 py-2.5 text-xs font-body font-bold uppercase tracking-[0.15em] rounded-xl hover:bg-white hover:text-black transition-colors">
                             Tenho interesse
                           </button>
                         ) : (
                           <>
-                            <button onClick={e => { e.stopPropagation(); if (item.comingSoon) { posthog.capture('interest_modal_open', { adventure: item.title }); setInterestItem({ title: item.title, adventureId: (item as any)._adventureId, image: item.image, description: item.desc }); } else { posthog.capture('booking_open', { adventure: item.title }); openBooking((item as any)._dbIndex ?? i); } }} className="bg-neon-yellow text-brutal-black px-4 py-2 text-[10px] font-body font-bold uppercase tracking-[0.15em] rounded-xl hover:bg-white transition-colors">
+                            <button onClick={e => { e.stopPropagation(); if (item.comingSoon) { posthog.capture('interest_modal_open', { adventure: item.title }); setInterestItem({ title: item.title, adventureId: (item as any)._adventureId, image: item.image, description: item.desc }); } else { posthog.capture('booking_open', { adventure: item.title }); openBooking((item as any)._dbIndex ?? i); } }} className="bg-neon-yellow text-brutal-black px-5 py-2.5 text-xs font-body font-bold uppercase tracking-[0.15em] rounded-xl hover:bg-white transition-colors">
                               {item.comingSoon ? 'Entrar na lista' : 'Reservar'}
                             </button>
-                            {!item.comingSoon && <button onClick={e => { e.stopPropagation(); posthog.capture('adventure_open', { adventure: item.title }); onActivity?.((item as any)._dbIndex ?? i); }} className="border border-white/20 text-white/60 px-4 py-2 text-[10px] font-body font-medium uppercase tracking-[0.15em] rounded-xl hover:border-white/60 hover:text-white transition-colors">
+                            {!item.comingSoon && <button onClick={e => { e.stopPropagation(); posthog.capture('adventure_open', { adventure: item.title }); onActivity?.((item as any)._dbIndex ?? i); }} className="border border-white/20 text-white/80 px-5 py-2.5 text-xs font-body font-medium uppercase tracking-[0.15em] rounded-xl hover:border-white/60 hover:text-white transition-colors">
                               Saber mais
                             </button>}
                           </>
@@ -818,10 +823,10 @@ function ProximasSaidas({ onConquista, onActivity, onBooking, dbAdventures }: { 
       {/* Header */}
       <div className="max-w-5xl mx-auto w-full mb-14 flex items-end justify-between">
         <div>
-          <p className="text-white/30 font-body text-[11px] uppercase tracking-[0.3em] font-semibold mb-4">Reserva o teu lugar</p>
+          <p className="text-white/80 font-body text-xs uppercase tracking-[0.3em] font-semibold mb-4">Reserva o teu lugar</p>
           <h2 className="text-4xl md:text-8xl font-body font-extrabold text-white leading-none tracking-tight">Próximas Saídas</h2>
         </div>
-        <p className="text-white/25 font-body text-sm text-right leading-relaxed hidden md:block">
+        <p className="text-white/70 font-body text-sm text-right leading-relaxed hidden md:block">
           Grupos reduzidos.<br />Vagas limitadas.
         </p>
       </div>
@@ -897,7 +902,7 @@ function OQueNosDiferencia({ onHistoria }: { onHistoria?: () => void }) {
           </h2>
           <div className="mt-8 md:mt-0">
             <p className="text-brutal-black font-body text-base md:text-xl leading-[1.6] mb-7">
-Lisboa até ao Qatar à boleia, atravessar os himalaias de scooter, ir de luanda até maputo com um toyota de 1994.. são apenas algumas das aventuras que nós já vivemos.. gostamos de explorar o desconhecido e agora queremos te dar a ti a oportunidade de viveres experiências únicas.            </p>
+Lisboa até ao Qatar à boleia, atravessar os Himalaias de scooter, ir de Luanda até Maputo com um Toyota de 1994... são apenas algumas das aventuras que nós já vivemos... gostamos de explorar o desconhecido e agora queremos te dar a ti a oportunidade de viveres experiências únicas.            </p>
             <button
               onClick={onHistoria}
               className="bg-brutal-black text-neon-yellow font-body font-bold text-xs uppercase tracking-[0.18em] px-6 py-3.5 rounded-xl hover:bg-brutal-black/80 transition-colors duration-300"
@@ -1137,7 +1142,8 @@ function IntroPortugal({ onConquista }: { onConquista?: () => void }) {
                 type="email"
                 placeholder="o.teu@email.com"
                 required
-                className="flex-1 bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm font-body placeholder-white/25 focus:outline-none focus:border-neon-yellow/50 transition-colors"
+                onInvalid={e => { const el = e.target as HTMLInputElement; el.setCustomValidity(el.validity.valueMissing ? 'Por favor insere o teu email.' : 'Insere um email válido (ex: joao@exemplo.com).'); }}
+                onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
               />
               <button
                 type="submit"
@@ -1179,7 +1185,7 @@ function AllExperiencesPage({ onBack, onHome, onActivity, onBooking, adventures 
     interestOnly: a.interest_only ?? false,
     location: a.location ?? '',
     price: a.price ?? null,
-    priceNum: a.price ? parseInt(String(a.price).replace(/[^0-9]/g, ''), 10) || 0 : 0,
+    priceNum: (() => { const n = parseInt(String(a.price ?? '').replace(/[^0-9]/g, ''), 10); return isNaN(n) ? 0 : n; })(),
     index: a.index ?? i,
     difficulty: a.difficulty ?? '',
     adventureId: a.id,
@@ -1189,17 +1195,39 @@ function AllExperiencesPage({ onBack, onHome, onActivity, onBooking, adventures 
     .filter(item => {
       const matchSearch = item.title.toLowerCase().includes(search.toLowerCase());
       const matchFilter = filter === 'todas' ? true : filter === 'disponiveis' ? !item.comingSoon : item.comingSoon;
-      const matchDifficulty = difficulty === 'todas' ? true : item.difficulty === difficulty;
+      const matchDifficulty = difficulty === 'todas' ? true : difficultyNormalize(item.difficulty) === difficulty;
       return matchSearch && matchFilter && matchDifficulty;
     });
 
-  const difficultyOptions = ['todas', ...Array.from(new Set(adventures.map((a: any) => a.difficulty).filter(Boolean)))];
+  // Normalize difficulty values from DB to canonical labels
+  const difficultyNormalize = (d: string): string => {
+    if (!d) return d;
+    const map: Record<string, string> = {
+      'Médio': 'Moderado',
+      'Medio': 'Moderado',
+      'Fácil/Moderado': 'Moderado',
+      'Facil/Moderado': 'Moderado',
+      'Muito fácil': 'Muito Fácil',
+    };
+    return map[d] ?? d;
+  };
+  const difficultyOrder = ['Difícil', 'Moderado', 'Fácil', 'Muito Fácil'];
+  const difficultyOptions = [
+    'todas',
+    ...difficultyOrder.filter(d => adventures.some((a: any) => difficultyNormalize(a.difficulty) === d)),
+  ];
 
 
   if (priceSort !== 'none') {
     items.sort((a, b) => {
-      const pa = (a as any).priceNum ?? 0;
-      const pb = (b as any).priceNum ?? 0;
+      const pa = (a as any).priceNum || 0;
+      const pb = (b as any).priceNum || 0;
+      const aNoPrice = !pa || (a as any).comingSoon;
+      const bNoPrice = !pb || (b as any).comingSoon;
+      // Coming soon and no-price items always go to the end
+      if (aNoPrice && bNoPrice) return 0;
+      if (aNoPrice) return 1;
+      if (bNoPrice) return -1;
       return priceSort === 'asc' ? pa - pb : pb - pa;
     });
   }
@@ -1241,7 +1269,7 @@ function AllExperiencesPage({ onBack, onHome, onActivity, onBooking, adventures 
           </div>
 
           <div>
-            <p className="text-white/50 font-body text-[10px] uppercase tracking-[0.3em] mb-4">Disponibilidade</p>
+            <p className="text-white/70 font-body text-xs uppercase tracking-[0.3em] mb-4">Disponibilidade</p>
             <div className="flex flex-col gap-2">
               {(['todas', 'disponiveis', 'embreve'] as const).map(f => (
                 <button key={f} onClick={() => setFilter(f)}
@@ -1411,7 +1439,7 @@ function AllExperiencesPage({ onBack, onHome, onActivity, onBooking, adventures 
   );
 }
 
-function NossaHistoriaPage({ onBack }: { onBack: () => void }) {
+function NossaHistoriaPage({ onBack, onHome }: { onBack: () => void; onHome?: () => void }) {
   return (
     <div className="min-h-screen bg-brutal-black selection:bg-neon-yellow selection:text-brutal-black overflow-x-hidden">
 
@@ -1425,7 +1453,9 @@ function NossaHistoriaPage({ onBack }: { onBack: () => void }) {
         <div className="flex items-center gap-4 bg-white/5 backdrop-blur-xl border border-white/10 px-5 py-3 rounded-2xl">
           <button onClick={onBack} className="text-white/50 font-body text-xs uppercase tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
           <div className="w-px h-3 bg-white/20" />
-          <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored" className="h-7 w-auto" />
+          <button onClick={onHome} className="focus:outline-none">
+            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored" className="h-7 w-auto hover:opacity-70 transition-opacity" />
+          </button>
         </div>
       </motion.nav>
 
@@ -1540,11 +1570,7 @@ function NossaHistoriaPage({ onBack }: { onBack: () => void }) {
 
 
       {/* ── CTA final ── */}
-      <div className="px-8 md:px-20 py-24 flex flex-col md:flex-row items-start md:items-end justify-between gap-8 border-t border-white/8">
-        <motion.p
-          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-          className="text-white/20 font-body text-[10px] uppercase tracking-[0.5em] max-w-xs"
-        >Bored Originals. · Portugal · {new Date().getFullYear()}</motion.p>
+      <div className="px-8 md:px-20 py-24 flex flex-col md:flex-row items-end justify-end gap-8 border-t border-white/8">
         <motion.button
           initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
           onClick={onBack}
@@ -2695,17 +2721,26 @@ function WaitlistModal({ date, adventureId, activityTitle, onClose, onHome, acti
                   <div className="space-y-6">
                     <div>
                       <label className="text-white/50 font-body text-[10px] uppercase tracking-[0.18em] block mb-3">Nome completo</label>
-                      <input required value={name} onChange={e => setName(e.target.value)} placeholder="João Silva"
+                      <input value={name} onChange={e => setName(e.target.value)} placeholder="João Silva"
+                        onInvalid={e => (e.target as HTMLInputElement).setCustomValidity('Por favor insere o teu nome.')}
+                        onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
+                        required
                         className="w-full bg-transparent border-b border-white/15 focus:border-white/50 outline-none text-white font-body text-base py-2 placeholder-white/20 transition-colors" />
                     </div>
                     <div>
                       <label className="text-white/50 font-body text-[10px] uppercase tracking-[0.18em] block mb-3">Email</label>
-                      <input required type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="joao@exemplo.com"
+                      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="joao@exemplo.com"
+                        onInvalid={e => { const el = e.target as HTMLInputElement; el.setCustomValidity(el.validity.valueMissing ? 'Por favor insere o teu email.' : 'Insere um email válido (ex: joao@exemplo.com).'); }}
+                        onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
+                        required type="email"
                         className="w-full bg-transparent border-b border-white/15 focus:border-white/50 outline-none text-white font-body text-base py-2 placeholder-white/20 transition-colors" />
                     </div>
                     <div>
                       <label className="text-white/50 font-body text-[10px] uppercase tracking-[0.18em] block mb-3">Telemóvel</label>
-                      <input required value={phone} onChange={e => setPhone(e.target.value)} placeholder="+351 912 345 678"
+                      <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+351 912 345 678"
+                        onInvalid={e => (e.target as HTMLInputElement).setCustomValidity('Por favor insere o teu número de telefóne.')}
+                        onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
+                        required
                         className="w-full bg-transparent border-b border-white/15 focus:border-white/50 outline-none text-white font-body text-base py-2 placeholder-white/20 transition-colors" />
                     </div>
                   </div>
@@ -2826,10 +2861,13 @@ function WaitlistModal({ date, adventureId, activityTitle, onClose, onHome, acti
               <p className="text-white/40 font-body text-sm mb-8">Avisamos quando abrir um lugar nesta edição.</p>
               <div>
                 <label className="text-white/50 font-body text-[10px] uppercase tracking-[0.18em] block mb-3">Email</label>
-                <input required type="email" value={email} onChange={e => {
+                <input type="email" value={email} onChange={e => {
                   setEmail(e.target.value);
                   if (emailError) setEmailError(null);
                 }}
+                  onInvalid={e => { const el = e.target as HTMLInputElement; el.setCustomValidity(el.validity.valueMissing ? 'Por favor insere o teu email.' : 'Insere um email válido (ex: joao@exemplo.com).'); }}
+                  onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
+                  required
                   placeholder="joao@exemplo.com"
                   className="w-full bg-transparent border-b border-white/15 focus:border-white/50 outline-none text-white font-body text-base py-2 placeholder-white/20 transition-colors" />
               </div>
@@ -2859,7 +2897,7 @@ function WaitlistModal({ date, adventureId, activityTitle, onClose, onHome, acti
   );
 }
 
-function ConquistaPage({ onBack }: { onBack: () => void }) {
+function ConquistaPage({ onBack, onHome }: { onBack: () => void; onHome?: () => void }) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [selectedVillage, setSelectedVillage] = useState<number>(0);
   const [dbAdv, setDbAdv] = useState<any>(null);
@@ -2991,7 +3029,9 @@ function ConquistaPage({ onBack }: { onBack: () => void }) {
           Todos os Originals
         </button>
         <div className="pointer-events-auto">
-          <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored Originals" className="h-12 w-auto drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)]" />
+          <button onClick={onHome} className="focus:outline-none">
+            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored Originals" className="h-12 w-auto drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)] hover:opacity-70 transition-opacity" />
+          </button>
         </div>
         <a href="#datas" className="pointer-events-auto bg-neon-yellow text-brutal-black px-5 py-2.5 text-xs font-body font-bold uppercase tracking-[0.1em] rounded-2xl hover:bg-white transition-colors">
           Reservar →
@@ -3049,7 +3089,7 @@ function ConquistaPage({ onBack }: { onBack: () => void }) {
             transition={{ duration: 0.9 }}
             className="flex flex-col justify-center px-10 md:px-16 lg:px-20 py-10"
           >
-            <p className="text-[10px] uppercase tracking-[0.5em] text-white/20 mb-4">A aventura</p>
+            <p className="text-xs uppercase tracking-[0.5em] text-white/70 mb-4">A aventura</p>
             <h2 className="text-[clamp(2.2rem,3.5vw,3.5rem)] font-extrabold text-white leading-[0.88] tracking-tight mb-7">
               Três dias.<br/>Doze aldeias.<br/>
               <em className="not-italic text-neon-yellow">Uma scooter.</em>
@@ -3067,7 +3107,7 @@ function ConquistaPage({ onBack }: { onBack: () => void }) {
               </motion.a>
               <button onClick={() => document.getElementById('programa')?.scrollIntoView({ behavior: 'smooth' })}
                 className="border border-white/20 text-white/50 px-6 py-3 text-xs font-semibold uppercase tracking-[0.12em] rounded-xl hover:border-white/50 hover:text-white/80 transition-all">
-                Ver programa
+                Ver Itinerário
               </button>
             </div>
 
@@ -3569,13 +3609,15 @@ function NewsletterSimple() {
               <input
                 type="email"
                 required
+                onInvalid={e => { const el = e.target as HTMLInputElement; el.setCustomValidity(el.validity.valueMissing ? 'Por favor insere o teu email.' : 'Insere um email válido (ex: joao@exemplo.com).'); }}
+                onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
                 value={email}
                 onChange={e => {
                   setEmail(e.target.value);
                   if (error) setError(null);
                 }}
                 placeholder="o.teu@email.com"
-                className="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-2xl px-5 py-4 text-white text-sm font-body placeholder-white/20 focus:outline-none focus:border-neon-yellow/50 transition-colors"
+                className="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-2xl px-5 py-4 text-white text-sm font-body placeholder-white/50 focus:outline-none focus:border-neon-yellow/50 transition-colors"
               />
               <button
                 type="submit"
@@ -3657,7 +3699,9 @@ function PartnerModal({ type, onClose }: { type: string; onClose: () => void }) 
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-neon-yellow/60 transition-colors"
+                onInvalid={e => { const el = e.target as HTMLInputElement; el.setCustomValidity(el.validity.valueMissing ? 'Por favor insere o teu email.' : 'Insere um email válido (ex: joao@exemplo.com).'); }}
+                onInput={e => (e.target as HTMLInputElement).setCustomValidity('')}
+                className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/50 focus:outline-none focus:border-neon-yellow/60 transition-colors"
               />
               <button type="submit"
                 className="w-full bg-neon-yellow text-black py-3.5 rounded-xl font-bold text-xs uppercase tracking-[0.15em] hover:bg-white transition-colors">
@@ -3720,18 +3764,20 @@ function SuggestActivityModal({ onClose }: { onClose: () => void }) {
             <form onSubmit={handleSubmit} className="space-y-3">
               <textarea
                 required
+                onInvalid={e => (e.target as HTMLTextAreaElement).setCustomValidity('Por favor descreve a tua sugestão.')}
+                onInput={e => (e.target as HTMLTextAreaElement).setCustomValidity('')}
                 placeholder="Ex: Canoagem no Douro de noite com fogueira..."
                 value={suggestion}
                 onChange={e => setSuggestion(e.target.value)}
                 rows={3}
-                className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-neon-yellow/60 transition-colors resize-none"
+                className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/50 focus:outline-none focus:border-neon-yellow/60 transition-colors resize-none"
               />
               <input
                 type="email"
                 placeholder="O teu email (opcional)"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/25 focus:outline-none focus:border-neon-yellow/60 transition-colors"
+                className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/50 focus:outline-none focus:border-neon-yellow/60 transition-colors"
               />
               {error && <p className="text-red-400 text-xs">{error}</p>}
               <button type="submit" disabled={isLoading}
@@ -3750,6 +3796,129 @@ function SuggestActivityModal({ onClose }: { onClose: () => void }) {
         )}
       </motion.div>
     </motion.div>
+  );
+}
+
+function PrivacidadePage({ onBack, onHome }: { onBack: () => void; onHome?: () => void }) {
+  return (
+    <div className="min-h-screen bg-brutal-black selection:bg-neon-yellow selection:text-brutal-black">
+
+      {/* Nav */}
+      <motion.nav
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.7, delay: 0.2 }}
+        className="fixed top-6 left-6 z-40"
+      >
+        <div className="flex items-center gap-4 bg-white/5 backdrop-blur-xl border border-white/10 px-5 py-3 rounded-2xl">
+          <button onClick={onBack} className="text-white/50 font-body text-xs uppercase tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
+          <div className="w-px h-3 bg-white/20" />
+          <button onClick={onHome} className="focus:outline-none">
+            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored" className="h-7 w-auto hover:opacity-70 transition-opacity" />
+          </button>
+        </div>
+      </motion.nav>
+
+      {/* Content */}
+      <div className="max-w-3xl mx-auto px-8 md:px-12 pt-40 pb-32">
+        <motion.p
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          className="text-neon-yellow font-body text-[10px] uppercase tracking-[0.4em] mb-6"
+        >Legal</motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
+          className="text-[clamp(2.5rem,7vw,5rem)] font-body font-extrabold text-white leading-[0.9] tracking-tight mb-4"
+        >Política de<br /><span className="text-neon-yellow">Privacidade</span></motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-white/30 font-body text-sm mb-16"
+        >Última atualização: 23 de abril de 2026</motion.p>
+
+        <div className="space-y-12 font-body text-white/70 text-base leading-relaxed">
+
+          <p>A Bored. leva a privacidade a sério. Sem letras miudinhas manhosas, sem truques, sem vender os teus dados a quem te queira empurrar mais uma newsletter irrelevante. Esta Política de Privacidade explica que dados pessoais podem ser recolhidos através do site, para que finalidades são usados, com quem podem ser partilhados e quais são os teus direitos enquanto titular dos dados.</p>
+          <p>Ao navegar no site, preencher formulários, entrar numa lista de espera, fazer uma pré-reserva, efetuar uma reserva ou contactar a Bored., o utilizador reconhece que os seus dados podem ser tratados nos termos desta política, sem prejuízo dos direitos que lhe assistem ao abrigo da legislação aplicável, incluindo o Regulamento Geral sobre a Proteção de Dados.</p>
+
+          {([
+            {
+              title: 'Quem trata os teus dados?',
+              content: 'A entidade responsável pelo tratamento dos dados pessoais recolhidos através do site da Bored. é a Bored. ou a entidade legal que opera a marca e a respetiva plataforma digital.\n\nPara questões relacionadas com privacidade, pedidos de acesso, rectificação ou qualquer outro exercício de direitos, o utilizador pode contactar a Bored. através do e-mail bookings@boredtourist.com.'
+            },
+            {
+              title: 'Que dados podem ser recolhidos?',
+              content: 'A Bored. pode recolher dados de identificação e contacto, como nome, endereço de e-mail, número de telefone, país de residência e outros dados fornecidos voluntariamente pelo utilizador em formulários do site, pedidos de contacto, subscrição de comunicações (newsletters) ou processos de reserva.\n\nNo contexto de uma reserva, pré-reserva ou pedido de participação numa experiência, também podem ser recolhidos dados transacionais e operacionais, como aventura escolhida, data, valor pago, modalidade de pagamento, estado da reserva, histórico de comunicações e informação necessária para processar a compra e prestar apoio ao cliente.\n\nQuando tal for necessário para operacionalizar uma experiência com parceiros locais, o utilizador poderá ainda fornecer informações adicionais, como preferências logísticas, restrições alimentares, dados do participante ou outros elementos relevantes para a execução da atividade, desde que adequados, pertinentes e limitados ao necessário.\n\nA Bored. também pode recolher dados técnicos e de navegação, como endereço IP, tipo de dispositivo, sistema operativo, tipo de browser, páginas visitadas, origem do tráfego, data e duração da visita e interações com o site, para fins de segurança, desempenho, estatística e melhoria da experiência digital.'
+            },
+            {
+              title: 'Como são recolhidos os dados?',
+              content: 'Os dados podem ser recolhidos quando o utilizador navega no site, preenche formulários, entra numa lista de espera, efetua uma pré-reserva, conclui uma reserva, subscreve a newsletter, envia um pedido por e-mail, interage com conteúdos promocionais ou aceita cookies e tecnologias semelhantes.\n\nAlguns dados são fornecidos diretamente pelo utilizador. Outros podem ser recolhidos automaticamente através do funcionamento técnico do site, incluindo cookies, logs do servidor e ferramentas de análise e medição de desempenho.'
+            },
+            {
+              title: 'Para que usamos os teus dados?',
+              content: 'Os dados pessoais podem ser tratados para gerir pedidos de informação, responder a contactos, gerir listas de espera, processar pré-reservas, confirmar reservas, enviar instruções sobre pagamento, prestar apoio antes e depois da experiência e assegurar a comunicação necessária ao bom funcionamento da plataforma.\n\nOs dados também podem ser utilizados para enviar comunicações relacionadas com o serviço, como confirmações, atualizações de reserva, alterações de data, pedidos de informação adicional, alertas operacionais ou comunicações urgentes associadas a uma aventura reservada.\n\nSe o utilizador tiver dado consentimento ou se existir fundamento legal bastante, a Bored. pode ainda usar os seus dados para enviar novidades, lançamentos, campanhas, experiências futuras ou outras comunicações de marketing relacionadas com a atividade da marca. O utilizador pode deixar de receber estas comunicações a qualquer momento.\n\nOs dados podem igualmente ser usados para prevenção de fraude, gestão administrativa, faturação, cumprimento de obrigações legais, tratamento de pedidos, defesa de direitos em processo judicial ou extrajudicial e melhoria contínua do site, dos fluxos de conversão e da experiência do utilizador.'
+            },
+            {
+              title: 'Base legal para o tratamento',
+              content: 'O tratamento de dados pessoais pode basear-se na execução de diligências pré-contratuais e contratuais, quando o utilizador entra numa lista, faz uma pré-reserva, efetua uma reserva ou solicita apoio relacionado com uma experiência. Pode também basear-se no consentimento, nomeadamente para o envio de newsletters, comunicações promocionais, determinadas categorias de cookies ou recolha de informação adicional não estritamente necessária à execução do serviço.\n\nEm certos casos, a Bored. poderá tratar dados com fundamento em obrigação legal, por exemplo para efeitos contabilísticos, fiscais, gestão de reclamações, segurança ou cooperação com autoridades competentes.\n\nPor fim, alguns tratamentos podem assentar em interesse legítimo, como a prevenção de abuso do site, segurança da plataforma, melhoria dos serviços, análise estatística agregada, comunicação com clientes sobre serviços semelhantes e gestão da atividade comercial, desde que esse interesse não prevaleça sobre os direitos do utilizador.'
+            },
+            {
+              title: 'Partilha de dados com terceiros',
+              content: 'A Bored. não vende dados pessoais. Ainda assim, pode partilhá-los com terceiros quando isso seja necessário para o funcionamento da plataforma, para a execução da reserva ou para cumprimento de obrigações legais.\n\nNo contexto normal da atividade da Bored., os dados podem ser partilhados com prestadores de serviços tecnológicos, fornecedores de alojamento e manutenção do site, plataformas de pagamento, ferramentas de e-mail e CRM, serviços de analytics, apoio ao cliente e outros subcontratantes que necessitem de tratar dados por conta da Bored. e com garantias adequadas de confidencialidade e segurança.\n\nComo a Bored. funciona como plataforma tecnológica e comercial e não como operadora direta das experiências, os dados estritamente necessários à execução da aventura podem ser partilhados com os operadores locais responsáveis por cada experiência, incluindo informação de contacto, dados de reserva e outros elementos operacionais relevantes.\n\nA Bored. pode ainda comunicar dados a autoridades públicas, reguladores, entidades fiscais, forças de segurança, tribunais ou outras entidades com poderes legais, sempre que tal seja exigido por lei, decisão administrativa, obrigação regulatória ou necessidade de defesa de direitos e interesses legítimos.'
+            },
+            {
+              title: 'Pagamentos',
+              content: 'Os pagamentos efetuados no site são processados através da Stripe, plataforma certificada e segura. Os métodos disponíveis podem incluir cartão, MbWay, Klarna, Google Pay, Apple Pay, PayPal e Revolut Pay, consoante a disponibilidade apresentada ao utilizador.\n\nA Bored. não armazena integralmente os dados do cartão do utilizador. Essa operação é assegurada diretamente pelo prestador de pagamentos, ao abrigo das respetivas políticas e padrões de segurança (PCI-DSS).'
+            },
+            {
+              title: 'Cookies e tecnologias semelhantes',
+              content: 'O site da Bored. pode utilizar cookies e tecnologias semelhantes para garantir o funcionamento técnico da plataforma, memorizar preferências, medir tráfego, analisar desempenho, melhorar funcionalidades e, quando aplicável, personalizar conteúdos ou campanhas.\n\nOs cookies podem ser necessários para assegurar funções essenciais do site. Outros cookies, como os de medição, desempenho ou marketing, podem depender do consentimento do utilizador, nos termos legalmente aplicáveis.\n\nO utilizador pode configurar o seu browser para bloquear, limitar ou apagar cookies. No entanto, a desativação de certos cookies pode afetar o funcionamento normal de algumas áreas do site.'
+            },
+            {
+              title: 'Conservação dos dados',
+              content: 'Os dados pessoais são conservados apenas durante o período necessário para as finalidades que justificaram a sua recolha, tendo em conta a natureza da relação com o utilizador, os prazos legais aplicáveis e a necessidade de prova, auditoria, faturação, gestão de litígios ou cumprimento regulatório.\n\nQuando os dados deixarem de ser necessários, serão apagados, anonimizados ou conservados apenas de forma bloqueada, quando a lei imponha a sua retenção residual.'
+            },
+            {
+              title: 'Segurança dos dados',
+              content: 'A Bored. compromete-se a adotar medidas técnicas e organizativas adequadas para proteger os dados pessoais contra destruição, perda, alteração, divulgação ou acesso não autorizado. Essas medidas são proporcionais à natureza dos dados e aos riscos envolvidos no tratamento.\n\nApesar disso, nenhuma transmissão de dados através da Internet ou sistema de armazenamento é totalmente infalível. Por isso, embora sejam adotadas medidas razoáveis de segurança, não pode ser garantida segurança absoluta em todos os cenários.'
+            },
+            {
+              title: 'Transferências internacionais de dados',
+              content: 'Sempre que algum prestador tecnológico, plataforma de e-mail, serviço de analytics, sistema de pagamentos ou parceiro relevante esteja localizado fora do Espaço Económico Europeu, a Bored. assegura que a transferência internacional de dados ocorre com garantias adequadas, nos termos legalmente exigidos, incluindo decisões de adequação, cláusulas contratuais-tipo ou mecanismos equivalentes.'
+            },
+            {
+              title: 'Direitos do titular dos dados',
+              content: 'Nos termos da lei aplicável, o utilizador pode ter o direito de solicitar acesso aos seus dados pessoais, a sua retificação, apagamento, limitação do tratamento, portabilidade dos dados e oposição a determinados tratamentos, em especial quando estes assentam em interesse legítimo ou sejam realizados para marketing direto.\n\nSempre que o tratamento se baseia no consentimento, esse consentimento pode ser retirado a qualquer momento, sem comprometer a licitude do tratamento efetuado até essa data.\n\nPara exercer os seus direitos, o utilizador deve contactar a Bored. através de bookings@boredtourist.com. Se considerar que os seus dados estão a ser tratados em violação da lei, pode também apresentar reclamação à Comissão Nacional de Proteção de Dados.'
+            },
+            {
+              title: 'Menores',
+              content: 'O site e as experiências divulgadas pela Bored. não se destinam, em regra, à recolha intencional de dados de menores sem intervenção ou autorização de quem exerça responsabilidades parentais, quando tal seja legalmente exigido. Sempre que uma experiência tenha requisitos etários específicos, essa informação consta da respetiva página de detalhe.'
+            },
+            {
+              title: 'Ligações para sites de terceiros',
+              content: 'O site da Bored. pode conter ligações para páginas externas, plataformas de pagamento, redes sociais, parceiros locais ou outros websites de terceiros. A Bored. não controla esses websites e não é responsável pelas respetivas práticas de privacidade, conteúdos ou condições de utilização.\n\nRecomenda-se que o utilizador consulte as políticas de privacidade desses terceiros antes de lhes fornecer dados pessoais.'
+            },
+            {
+              title: 'Alterações a esta política',
+              content: 'A Bored. pode atualizar esta Política de Privacidade a qualquer momento, sempre que tal se justifique por alterações legais, operacionais, tecnológicas ou comerciais. A versão mais recente será disponibilizada no site com indicação da data da última atualização.'
+            },
+            {
+              title: 'Contactos',
+              content: 'Para questões relacionadas com privacidade, exercício de direitos ou pedidos de esclarecimento, o utilizador deverá contactar a Bored. através de bookings@boredtourist.com.'
+            },
+          ] as { title: string; content: string }[]).map((section, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.04 }}
+              className="border-t border-white/8 pt-10"
+            >
+              <h2 className="text-white font-body font-bold text-xl mb-4">{section.title}</h2>
+              {section.content.split('\n\n').map((para, j) => (
+                <p key={j} className="mb-4 last:mb-0">{para}</p>
+              ))}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -3788,24 +3957,24 @@ function Footer() {
 
           {/* Middle — nav links */}
           <div className="flex flex-col gap-2 items-center md:items-start">
-            <p className="text-white/60 font-body text-[10px] uppercase tracking-[0.3em] mb-2 font-bold">Explorar</p>
-            <button onClick={() => { navigate('/experiencias'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="text-white/75 hover:text-neon-yellow font-body text-sm font-medium transition-colors duration-200">Ver experiências</button>
-            <button onClick={() => scrollToSection('proximas-saidas')} className="text-white/75 hover:text-neon-yellow font-body text-sm font-medium transition-colors duration-200">Próximas saídas</button>
-            <button onClick={() => { navigate('/sobre-nos'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="text-white/75 hover:text-neon-yellow font-body text-sm font-medium transition-colors duration-200">Sobre nós</button>
-            <button onClick={() => { navigate('/apoio'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="text-white/75 hover:text-neon-yellow font-body text-sm font-medium transition-colors duration-200">FAQ</button>
+            <p className="text-white/60 font-body text-xs uppercase tracking-[0.3em] mb-2 font-bold">Explorar</p>
+            <button onClick={() => { navigate('/experiencias'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="text-white/75 hover:text-neon-yellow font-body text-base font-medium transition-colors duration-200">Ver experiências</button>
+            <button onClick={() => scrollToSection('proximas-saidas')} className="text-white/75 hover:text-neon-yellow font-body text-base font-medium transition-colors duration-200">Próximas saídas</button>
+            <button onClick={() => { navigate('/sobre-nos'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="text-white/75 hover:text-neon-yellow font-body text-base font-medium transition-colors duration-200">Sobre nós</button>
+            <button onClick={() => { navigate('/apoio'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="text-white/75 hover:text-neon-yellow font-body text-base font-medium transition-colors duration-200">FAQs</button>
           </div>
 
           {/* Right — suggestion */}
           <div className="flex flex-col gap-2 items-center md:items-start">
-            <p className="text-white/60 font-body text-[10px] uppercase tracking-[0.3em] mb-2 font-bold">Parcerias</p>
+            <p className="text-white/60 font-body text-xs uppercase tracking-[0.3em] mb-2 font-bold">Parcerias</p>
             <button onClick={() => setSuggestOpen(true)}
-              className="text-left text-white/75 hover:text-neon-yellow font-body text-sm font-medium transition-colors duration-200">
+              className="text-left text-white/75 hover:text-neon-yellow font-body text-base font-medium transition-colors duration-200">
               Sugere uma atividade! 💡
             </button>
           </div>
 
           <div className="flex flex-col gap-3 items-center md:items-start">
-            <p className="text-white/60 font-body text-[10px] uppercase tracking-[0.3em] mb-1 font-bold">Redes sociais</p>
+            <p className="text-white/60 font-body text-xs uppercase tracking-[0.3em] mb-1 font-bold">Redes sociais</p>
             <div className="flex gap-2">
               <motion.a href="#" whileHover={{ scale: 1.12 }} className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white/70 hover:border-neon-yellow/70 hover:text-neon-yellow transition-all">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
@@ -3822,7 +3991,7 @@ function Footer() {
 
         {/* Partner logos */}
         <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
-          <p className="text-white/30 font-body text-[10px] uppercase tracking-[0.3em] font-bold md:mr-2">Apoios</p>
+          <p className="text-white/30 font-body text-xs uppercase tracking-[0.3em] font-bold md:mr-2">Apoios</p>
           <div className="flex items-center gap-8">
             <div className="bg-white rounded-lg px-3 py-2">
               <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/logosbe.png" alt="Logo parceiro" className="h-14 md:h-16 w-auto" />
@@ -3834,10 +4003,10 @@ function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-white/40 font-body text-xs uppercase tracking-widest text-center">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-white/40 font-body text-sm uppercase tracking-widest text-center">
           <p>&copy; {new Date().getFullYear()} Bored Original.</p>
           <div className="flex gap-5">
-            <a href="#" className="hover:text-white transition-colors">Política de Privacidade</a>
+            <button onClick={() => { navigate('/privacidade'); window.scrollTo({ top: 0, behavior: 'instant' }); }} className="hover:text-white transition-colors">Política de Privacidade</button>
             <a href="#" className="hover:text-white transition-colors">Termos de Sofrimento</a>
             <a href="#" className="hover:text-white transition-colors">Cookies</a>
           </div>
@@ -4068,7 +4237,7 @@ const activitySpots: Record<number, { name: string; desc: string; image: string 
   ],
 };
 
-function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures = [] }: { activityIndex: number; onBack: () => void; autoBook?: boolean; allAdventures?: any[] }) {
+function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdventures = [] }: { activityIndex: number; onBack: () => void; onHome?: () => void; autoBook?: boolean; allAdventures?: any[] }) {
   const navigate = useNavigate();
   const [dbAdv, setDbAdv] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>('inclui');
@@ -4185,7 +4354,9 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
         <div className="pointer-events-auto flex items-center gap-2 md:gap-4 bg-white/5 backdrop-blur-xl border border-white/10 px-3 md:px-5 py-2 md:py-3 rounded-xl md:rounded-2xl">
           <button onClick={onBack} className="text-white/50 font-body text-[10px] md:text-xs uppercase tracking-[0.1em] md:tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
           <div className="w-px h-3 bg-white/20" />
-          <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored Originals" className="h-5 md:h-7 w-auto" />
+          <button onClick={onHome} className="focus:outline-none">
+            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored Originals" className="h-5 md:h-7 w-auto hover:opacity-70 transition-opacity" />
+          </button>
         </div>
         <button onClick={scrollToTabs} className="pointer-events-auto bg-neon-yellow text-brutal-black px-3 md:px-5 py-2 md:py-2.5 text-[10px] md:text-xs font-body font-bold uppercase tracking-[0.08em] md:tracking-[0.1em] rounded-xl md:rounded-2xl hover:bg-white transition-colors">
           Ver datas →
@@ -4198,7 +4369,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
         <div className="absolute inset-0 bg-gradient-to-t from-brutal-black via-brutal-black/20 to-brutal-black/55" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-20 px-6 text-center z-10">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.2 }}>
-            <p className="text-white/40 font-body text-[10px] uppercase tracking-[0.35em] mb-5">{data.location}</p>
+            <p className="text-white/70 font-body text-xs uppercase tracking-[0.35em] mb-5">{data.location}</p>
             <h1 className="text-[clamp(2.8rem,10vw,10rem)] font-body font-extrabold text-white leading-[0.82] tracking-tight mb-10">
               {data.title}
             </h1>
@@ -4219,7 +4390,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
           {/* Esquerda — label + título + descrição + botões */}
           <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="flex flex-col gap-8">
             <div>
-              <p className="text-white/25 font-body text-[10px] uppercase tracking-[0.4em] mb-6">A aventura</p>
+              <p className="text-white/70 font-body text-xs uppercase tracking-[0.4em] mb-6">A aventura</p>
               <h2 className="text-[clamp(2rem,4.5vw,5.5rem)] font-body font-extrabold text-white leading-[0.88] tracking-tight mb-8">
                 {data.tagline}
               </h2>
@@ -4237,7 +4408,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                 const lvl = levels[data.difficulty] ?? { bars: 2, color: '#FFE600', label: data.difficulty };
                 return (
                   <div className="mt-6 flex items-center gap-4">
-                    <span className="text-white/30 font-body text-[10px] uppercase tracking-[0.3em]">Nível de esforço</span>
+                    <span className="text-white/70 font-body text-xs uppercase tracking-[0.3em]">Nível de esforço</span>
                     <div className="flex items-end gap-1.5">
                       {[1,2,3,4].map(n => (
                         <div
@@ -4262,13 +4433,13 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                 Ver datas
               </button>
               <button onClick={() => { setActiveTab('itinerario'); tabMenuRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} className="border border-white/20 text-white font-body font-semibold text-xs uppercase tracking-[0.18em] px-7 py-3.5 rounded-xl hover:bg-white/8 transition-colors duration-300">
-                Ver programa
+                Ver Itinerário
               </button>
             </div>
           </motion.div>
 
-          {/* Direita — vídeo */}
-          {(data as any).heroVideo && (
+          {/* Direita — vídeo ou highlights */}
+          {(data as any).heroVideo ? (
             <motion.div
               initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
               className="rounded-3xl overflow-hidden w-full"
@@ -4280,7 +4451,26 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                 src={(data as any).heroVideo}
               />
             </motion.div>
-          )}
+          ) : data.highlights?.length === 1 ? (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
+              className="relative overflow-hidden rounded-3xl w-full h-full"
+              style={{ minHeight: 480 }}
+            >
+              <img src={data.highlights[0]} alt="" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+            </motion.div>
+          ) : data.highlights?.length > 1 ? (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
+              className="grid grid-cols-2 gap-3 w-full"
+            >
+              {data.highlights.slice(0, 4).map((src: string, i: number) => (
+                <div key={i} className={`relative overflow-hidden rounded-2xl ${i === 0 ? 'row-span-2' : ''}`} style={{ aspectRatio: i === 0 ? undefined : '4/3', minHeight: i === 0 ? 340 : undefined }}>
+                  <img src={src} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                </div>
+              ))}
+            </motion.div>
+          ) : null}
         </div>
       </div>
 
@@ -4320,13 +4510,13 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
                   <div className="flex-1 px-5 md:px-8 pt-5 pb-5 md:py-7">
                     {/* Status pill — top row (mobile only; desktop shows in right column) */}
                     <div className="flex items-center justify-between mb-3">
-                      <p className="text-white/40 font-body text-[10px] uppercase tracking-[0.25em]">Data</p>
+                      <p className="text-white/70 font-body text-xs uppercase tracking-[0.25em]">Data</p>
                     </div>
                     <p className="text-white font-body font-bold text-xl leading-tight mb-4">{d.date_range ?? d.range}</p>
                     {/* Price row */}
                     <div className="flex items-baseline gap-2 mb-5">
                       <span className="text-white font-body font-extrabold text-4xl leading-none tracking-tight">{d.price}</span>
-                      <span className="text-white/30 font-body text-xs leading-tight">{isDormidaDate ? 'por cabine · 2 pessoas' : 'por pessoa'}</span>
+                      <span className="text-white/60 font-body text-xs leading-tight">{isDormidaDate ? 'por cabine · 2 pessoas' : 'por pessoa'}</span>
                     </div>
                     {/* Spots — mobile only */}
                     {!isSoldOut && (
@@ -4657,7 +4847,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
       </div>{/* ── fim TABS WRAPPER ── */}
 
       {/* ── ÁLBUM DE FOTOS ── */}
-      <div className="px-10 md:px-20 py-20 border-t border-white/6">
+      {(data as any).galleryImages?.length > 0 && <div className="px-10 md:px-20 py-20 border-t border-white/6">
         <div className="mb-10 text-center">
           <p className="text-white/25 font-body text-[9px] uppercase tracking-[0.45em] mb-3">Galeria</p>
           <h3 className="text-3xl md:text-4xl font-body font-extrabold text-white">Momentos reais</h3>
@@ -4683,7 +4873,7 @@ function ActivityPage({ activityIndex, onBack, autoBook = false, allAdventures =
           ));
           })()}
         </div>
-      </div>
+      </div>}
 
       {/* ── OUTRAS ATIVIDADES ── */}
       <div className="px-10 md:px-20 py-20 border-t border-white/6">
@@ -4793,7 +4983,7 @@ function PaymentSuccessPage({ onHome }: { onHome: () => void }) {
   );
 }
 
-function ApoioPage({ onBack }: { onBack: () => void }) {
+function ApoioPage({ onBack, onHome }: { onBack: () => void; onHome?: () => void }) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sections, setSections] = useState<any[]>([]);
@@ -4835,7 +5025,9 @@ function ApoioPage({ onBack }: { onBack: () => void }) {
         <div className="flex items-center gap-4 bg-white/5 backdrop-blur-xl border border-white/10 px-5 py-3 rounded-2xl">
           <button onClick={onBack} className="text-white/50 font-body text-xs uppercase tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
           <div className="w-px h-3 bg-white/20" />
-          <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored" className="h-7 w-auto" />
+          <button onClick={onHome} className="focus:outline-none">
+            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored" className="h-7 w-auto hover:opacity-70 transition-opacity" />
+          </button>
         </div>
       </motion.nav>
 
@@ -4844,7 +5036,7 @@ function ApoioPage({ onBack }: { onBack: () => void }) {
         <motion.p
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
           className="text-neon-yellow font-body text-[10px] uppercase tracking-[0.4em] mb-6"
-        >Apoio</motion.p>
+        >FAQs</motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
           className="text-[clamp(3rem,8vw,7rem)] font-body font-extrabold text-white leading-[0.88] tracking-tight mb-8"
@@ -5009,7 +5201,7 @@ function ActivityRoute({ adventures }: { adventures: any[] }) {
     );
   }
 
-  return <ActivityPage activityIndex={activityIndex} autoBook={autoBook} allAdventures={adventures} onBack={() => navigate(-1 as any)} />;
+  return <ActivityPage activityIndex={activityIndex} autoBook={autoBook} allAdventures={adventures} onBack={() => navigate(-1 as any)} onHome={() => navigate('/')} />;
 }
 
 function AppRoutes() {
@@ -5120,10 +5312,11 @@ function AppRoutes() {
           <Footer />
         </div>
       } />
-      <Route path="/experiencias" element={<AllExperiencesPage onBack={nav.back} onHome={nav.toHome} onActivity={goToActivity} onBooking={goToBooking} adventures={dbAdventures} />} />
-      <Route path="/sobre-nos" element={<NossaHistoriaPage onBack={nav.back} />} />
-      <Route path="/apoio" element={<ApoioPage onBack={nav.back} />} />
-      <Route path="/conquista" element={<ConquistaPage onBack={nav.back} />} />
+      <Route path="/experiencias" element={<><AllExperiencesPage onBack={nav.back} onHome={nav.toHome} onActivity={goToActivity} onBooking={goToBooking} adventures={dbAdventures} /><Footer /></>} />
+      <Route path="/sobre-nos" element={<><NossaHistoriaPage onBack={nav.back} onHome={nav.toHome} /><Footer /></>} />
+      <Route path="/apoio" element={<><ApoioPage onBack={nav.back} onHome={nav.toHome} /><Footer /></>} />
+      <Route path="/conquista" element={<><ConquistaPage onBack={nav.back} onHome={nav.toHome} /><Footer /></>} />
+      <Route path="/privacidade" element={<><PrivacidadePage onBack={nav.back} onHome={nav.toHome} /><Footer /></>} />
       <Route path="/actividade/:slug" element={<ActivityRoute adventures={dbAdventures} />} />
       <Route path="/pagamento-confirmado" element={<PaymentSuccessPage onHome={nav.toHome} />} />
       <Route path="*" element={
