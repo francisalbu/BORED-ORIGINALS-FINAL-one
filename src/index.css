@@ -17,7 +17,10 @@ body {
 }
 
 /* Desktop zoom: scale to 80% so design matches intended proportions.
-   Width calc(100vw/0.8) compensates so html fills full viewport after zoom. */
+   Width calc(100vw/0.8) compensates so html fills full viewport after zoom.
+   NOTE: this rule is also inlined in index.html <head> so it applies on the
+   very first paint (before JS injects this stylesheet in dev) — keep both
+   in sync to avoid a flash of unscaled / "zoomed-in" layout. */
 @media (min-width: 768px) {
   html {
     zoom: 0.8;

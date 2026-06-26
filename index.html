@@ -3,11 +3,127 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#050505" />
     <title>Bored Originals — Aventuras que valem a pena</title>
     <meta name="description" content="Aventuras originais em Portugal. Subida ao Pico, Sobreviver 24h, Descida da Costa e muito mais." />
+
+    <!-- CRITICAL: apply the desktop 80% zoom inline, before any JS/CSS loads.
+         If this lived only in index.css it would be injected late (via JS in dev),
+         causing a flash of unscaled / "zoomed-in" layout on every load. -->
+    <style>
+      @media (min-width: 768px) {
+        html {
+          zoom: 0.8;
+          width: calc(100vw / 0.8);
+          min-height: calc(100vh / 0.8);
+        }
+      }
+    </style>
+
+    <!-- Start connections to media/data/font origins as early as possible -->
+    <link rel="preconnect" href="https://prifvutxutzcspiukzek.supabase.co" crossorigin />
+    <link rel="preconnect" href="https://storage.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://prifvutxutzcspiukzek.supabase.co" />
+    <link rel="dns-prefetch" href="https://storage.googleapis.com" />
+
+    <!-- Preload the hero poster so it is painted the instant the splash fades -->
+    <link rel="preload" as="image" href="/poster-home.jpg" fetchpriority="high" />
+
+    <!-- Instant waiting screen (shown before the JS bundle even loads) -->
+    <style>
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #050505;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 26px;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
+      #splash.splash-hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #splash .splash-wm {
+        font-weight: 800;
+        font-size: clamp(1.6rem, 6vw, 2.2rem);
+        letter-spacing: -0.03em;
+        line-height: 1;
+        color: #fff;
+      }
+      #splash .splash-wm span {
+        color: #ffe600;
+      }
+      #splash .splash-bar {
+        position: relative;
+        width: 120px;
+        height: 2px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.12);
+        overflow: hidden;
+      }
+      #splash .splash-bar::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 40%;
+        border-radius: 2px;
+        background: #ffe600;
+        animation: splash-slide 1.05s ease-in-out infinite;
+      }
+      @keyframes splash-slide {
+        0% {
+          transform: translateX(-130%);
+        }
+        100% {
+          transform: translateX(330%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #splash .splash-bar::after {
+          animation-duration: 2s;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="splash" aria-hidden="true">
+      <div class="splash-wm">Bored<span>.</span></div>
+      <div class="splash-bar"></div>
+    </div>
     <div id="root"></div>
+    <script>
+      (function () {
+        window.__splashStart = Date.now();
+        window.__hideSplash = function () {
+          var el = document.getElementById('splash');
+          if (!el || el.dataset.hiding) return;
+          el.dataset.hiding = '1';
+          // Keep the screen up for at least ~0.8s so it never just flashes.
+          var wait = Math.max(0, 800 - (Date.now() - window.__splashStart));
+          setTimeout(function () {
+            el.classList.add('splash-hide');
+            setTimeout(function () {
+              if (el.parentNode) el.parentNode.removeChild(el);
+            }, 550);
+          }, wait);
+        };
+        // Safety net: on a slow connection the hero video can take many seconds
+        // (or never) to be ready — never trap the user on the splash. The hero
+        // poster is a real frame of the video, so revealing it early is seamless
+        // and the video fades in on top once it can play.
+        setTimeout(function () { window.__hideSplash(); }, 1800);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -34,6 +34,83 @@ function slugify(s: string): string {
     .replace(/^-|-$/g, '');
 }
 
+/**
+ * Background video that defers heavy downloads.
+ * - Shows a lightweight poster image instantly (no blank/black screen).
+ * - Only loads & plays the real video on desktop AND when scrolled into view.
+ * - Mobile / data-saver users get just the poster — no multi-MB download.
+ * Fills its nearest positioned (relative/absolute) ancestor.
+ */
+function BgVideo({ src, poster, allowMobile = false, onReady }: { src: string; poster?: string; allowMobile?: boolean; onReady?: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const posterRef = useRef<HTMLImageElement>(null);
+  const [play, setPlay] = useState(false);
+  // True when this instance will never load a video (mobile / data-saver),
+  // so the poster image is the final frame and signals readiness on its own.
+  const posterOnly = useRef(false);
+  const readyFired = useRef(false);
+
+  const fireReady = useCallback(() => {
+    if (readyFired.current) return;
+    readyFired.current = true;
+    onReady?.();
+  }, [onReady]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const saveData = (navigator as any).connection?.saveData === true;
+    // On mobile (or data-saver) keep the poster only — never pull tens of MB.
+    if ((isMobile && !allowMobile) || saveData) {
+      posterOnly.current = true;
+      // If the poster is already cached/painted, we are ready right away.
+      if (posterRef.current?.complete) fireReady();
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setPlay(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '300px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [allowMobile, fireReady]);
+
+  return (
+    <div ref={ref} className="absolute inset-0 w-full h-full overflow-hidden">
+      {poster && (
+        <img
+          ref={posterRef}
+          src={poster}
+          alt=""
+          aria-hidden
+          onLoad={() => { if (posterOnly.current) fireReady(); }}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+      {play && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          poster={poster}
+          onPlaying={fireReady}
+          onCanPlay={fireReady}
+          className="absolute inset-0 w-full h-full object-cover"
+          src={src}
+        />
+      )}
+    </div>
+  );
+}
+
 function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: { onConquista?: () => void; onHistoria?: () => void; onHome?: () => void; onApoio?: () => void; onAllExperiences?: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -180,13 +257,10 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
 function Hero() {
   return (
     <div className="relative w-full overflow-hidden bg-brutal-black hero-section">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+      <BgVideo
         src="https://storage.googleapis.com/bored_tourist_media/videos/videofinal.mp4"
+        poster="/poster-home.jpg"
+        onReady={() => (window as any).__hideSplash?.()}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-brutal-black via-brutal-black/20 to-brutal-black/40"></div>
 
@@ -626,10 +700,11 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
                 style={{ objectPosition: (item as any).objectPosition ?? 'center center', filter: `saturate(${(item as any).imageSaturate ?? 1.3}) brightness(1.05) contrast(1.05)` }}
                 draggable={false}
               />
-              {(item as any).hoverVideo && (
+              {(item as any).hoverVideo && typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches && (
                 <video
                   src={(item as any).hoverVideo}
                   className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                  preload="none"
                   autoPlay
                   loop
                   muted
@@ -918,13 +993,12 @@ Lisboa até ao Qatar à boleia, atravessar os Himalaias de scooter, ir de Luanda
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="rounded-3xl overflow-hidden flex items-center justify-center bg-black"
+          className="relative rounded-3xl overflow-hidden flex items-center justify-center bg-black"
           style={{ height: 'clamp(420px, 80vw, 1100px)' }}
         >
-          <video
-            autoPlay loop muted playsInline
-            className="w-full h-full object-cover"
+          <BgVideo
             src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/nos.mp4"
+            poster="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/neve.jpeg"
           />
         </motion.div>
 
@@ -3040,13 +3114,9 @@ function ConquistaPage({ onBack, onHome }: { onBack: () => void; onHome?: () => 
 
       {/* HERO — full screen video, same as home */}
       <div className="relative w-full overflow-hidden bg-brutal-black hero-section">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+        <BgVideo
           src="https://storage.googleapis.com/bored_tourist_media/videos/Seque%CC%82ncia%2005.mp4"
+          poster="/poster-conquista.jpg"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-brutal-black via-brutal-black/20 to-brutal-black/40" />
         <div className="absolute bottom-10 left-6 z-10">
@@ -4442,14 +4512,10 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
           {(data as any).heroVideo ? (
             <motion.div
               initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
-              className="rounded-3xl overflow-hidden w-full"
+              className="relative rounded-3xl overflow-hidden w-full"
               style={{ aspectRatio: '16/9' }}
             >
-              <video
-                autoPlay loop muted playsInline
-                className="w-full h-full object-cover"
-                src={(data as any).heroVideo}
-              />
+              <BgVideo src={(data as any).heroVideo} poster={data.heroImage} />
             </motion.div>
           ) : data.highlights?.length === 1 ? (
             <motion.div
