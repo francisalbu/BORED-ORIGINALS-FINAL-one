@@ -35,6 +35,20 @@ function slugify(s: string): string {
 }
 
 /**
+ * Route remote images through the wsrv.nl proxy so each one is resized to the
+ * actual display width, re-encoded as WebP, and served with a 1-year cache.
+ * Supabase serves the originals as multi-MB PNGs with `cache-control: no-cache`,
+ * which is brutal on mobile — proxying typically shrinks them by 90–98% and
+ * makes them cacheable. Local/static assets ("/foto.jpg") are left untouched.
+ */
+function img(url: string | null | undefined, width = 800, quality = 68): string {
+  if (!url) return '';
+  if (!/^https?:\/\//i.test(url)) return url;   // local/static — already optimised
+  if (url.includes('wsrv.nl')) return url;      // already proxied — don't double-wrap
+  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&output=webp&q=${quality}`;
+}
+
+/**
  * Background video that defers heavy downloads.
  * - Shows a lightweight poster image instantly (no blank/black screen).
  * - Only loads & plays the real video on desktop AND when scrolled into view.
@@ -137,7 +151,7 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
           {/* Center logo — desktop only */}
           <button onClick={onHome} className="hidden md:block absolute left-1/2 -translate-x-1/2 focus:outline-none">
             <img
-              src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png"
+              src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68"
               alt="Bored Originals."
               className="h-14 w-auto drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)] hover:opacity-80 transition-opacity duration-200"
             />
@@ -168,7 +182,7 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
             {/* Logo centered */}
             <button onClick={onHome} className="absolute left-1/2 -translate-x-1/2 focus:outline-none">
               <img
-                src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png"
+                src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68"
                 alt="Bored Originals"
                 className="h-9 w-auto drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)]"
               />
@@ -194,7 +208,7 @@ function Navbar({ onConquista, onHistoria, onHome, onApoio, onAllExperiences }: 
           {/* Top bar */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4">
             <img
-              src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png"
+              src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68"
               alt="Bored Originals"
               className="h-9 w-auto"
             />
@@ -508,7 +522,7 @@ function InterestModal({ title, adventureId, teaserDate, image, description, onC
             {/* Card image header */}
             {image && (
               <div className="relative w-full h-48 overflow-hidden">
-                <img src={image} alt={title} className="w-full h-full object-cover brightness-75" />
+                <img src={img(image, 600)} alt={title} loading="lazy" className="w-full h-full object-cover brightness-75" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/20 to-transparent" />
                 <div className="absolute bottom-4 left-5 flex items-center gap-2">
                   <span className="bg-black/50 backdrop-blur-sm text-white/60 text-[9px] font-bold uppercase tracking-[0.25em] px-3 py-1.5 rounded-full">A planear</span>
@@ -693,7 +707,7 @@ function BoredOriginals({ onConquista, onActivity, onBooking, onAllExperiences, 
               style={{ aspectRatio: (item as any).cardAspectRatio ?? '2/3', pointerEvents: dragged ? 'none' : 'auto', cursor: 'pointer' }}
             >
               <img
-                src={item.image}
+                src={img(item.image, 700)}
                 alt={item.title}
                 loading="lazy"
                 className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out brightness-[1.05] contrast-[1.05] ${ (item as any).hoverVideo ? 'group-hover:opacity-0' : 'group-hover:scale-105'}`}
@@ -920,7 +934,7 @@ function ProximasSaidas({ onConquista, onActivity, onBooking, dbAdventures }: { 
           >
             {/* Thumbnail */}
             <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl overflow-hidden flex-shrink-0">
-              <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img src={img(item.image, 200)} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
             </div>
 
             {/* Top row: thumbnail info + date */}
@@ -1318,7 +1332,7 @@ function AllExperiencesPage({ onBack, onHome, onActivity, onBooking, adventures 
         </button>
         <div className="flex items-center">
           <button onClick={onHome} className="focus:outline-none">
-            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored" className="h-10 w-auto" />
+            <img src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68" alt="Bored" className="h-10 w-auto" />
           </button>
         </div>
         <div className="w-16" />
@@ -1454,8 +1468,9 @@ function AllExperiencesPage({ onBack, onHome, onActivity, onBooking, adventures 
                     style={{ aspectRatio: '2/3' }}
                   >
                     <img
-                      src={item.image}
+                      src={img(item.image, 700)}
                       alt={item.title}
+                      loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       style={{ filter: 'saturate(1.2) brightness(1.0)' }}
                     />
@@ -1528,7 +1543,7 @@ function NossaHistoriaPage({ onBack, onHome }: { onBack: () => void; onHome?: ()
           <button onClick={onBack} className="text-white/50 font-body text-xs uppercase tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
           <div className="w-px h-3 bg-white/20" />
           <button onClick={onHome} className="focus:outline-none">
-            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored" className="h-7 w-auto hover:opacity-70 transition-opacity" />
+            <img src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68" alt="Bored" className="h-7 w-auto hover:opacity-70 transition-opacity" />
           </button>
         </div>
       </motion.nav>
@@ -2193,7 +2208,7 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
         </button>
         <div className="flex-1 flex justify-center">
           <button onClick={() => { onClose(); onHome?.(); }} className="focus:outline-none">
-            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored." className="h-8 w-auto" />
+            <img src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68" alt="Bored." className="h-8 w-auto" />
           </button>
         </div>
         <div className="w-16" />
@@ -2205,7 +2220,7 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
       {/* ── Mobile summary bar ── */}
       <div className="lg:hidden flex items-center justify-between px-6 py-4 border-b border-white/[0.08] bg-white/[0.04]">
         <div className="flex items-center gap-3 min-w-0">
-          {activityImage && <img src={activityImage} alt="" className="w-10 h-10 object-cover rounded-lg flex-shrink-0" />}
+          {activityImage && <img src={img(activityImage, 120)} alt="" loading="lazy" className="w-10 h-10 object-cover rounded-lg flex-shrink-0" />}
           <div className="min-w-0">
             <p className="text-white font-body font-semibold text-sm truncate">{activityTitle}</p>
             <p className="text-white/40 text-xs truncate">{date.date_range}</p>
@@ -2566,7 +2581,7 @@ function BookingModal({ date, activityTitle, bookingType = 'standard', onClose, 
               {/* Header: thumbnail + title */}
               <div className="flex items-start gap-4 p-5 border-b border-black/[0.07]">
                 {activityImage && (
-                  <img src={activityImage} alt={activityTitle ?? ''}
+                  <img src={img(activityImage, 180)} alt={activityTitle ?? ''} loading="lazy"
                     className="w-16 h-16 object-cover rounded-xl flex-shrink-0" />
                 )}
                 <div className="flex-1 min-w-0 pt-0.5">
@@ -2731,7 +2746,7 @@ function WaitlistModal({ date, adventureId, activityTitle, onClose, onHome, acti
       </button>
       <div className="flex-1 flex justify-center">
         <button onClick={() => { onClose(); onHome?.(); }} className="focus:outline-none">
-          <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored." className="h-8 w-auto" />
+          <img src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68" alt="Bored." className="h-8 w-auto" />
         </button>
       </div>
       <div className="w-16" />
@@ -2742,7 +2757,7 @@ function WaitlistModal({ date, adventureId, activityTitle, onClose, onHome, acti
     <div className="lg:w-80 flex-shrink-0">
       <div className="rounded-2xl bg-white text-brutal-black overflow-hidden sticky top-8">
         {activityImage && <div className="flex items-center gap-3 p-5 border-b border-black/8">
-          <img src={activityImage} alt="" className="w-14 h-14 rounded-xl object-cover" />
+          <img src={img(activityImage, 160)} alt="" loading="lazy" className="w-14 h-14 rounded-xl object-cover" />
           <div>
             <p className="font-body font-bold text-base leading-tight">{activityTitle}</p>
             {activityLocation && <p className="font-body text-[10px] uppercase tracking-widest text-black/35 mt-0.5">{activityLocation}</p>}
@@ -2780,7 +2795,7 @@ function WaitlistModal({ date, adventureId, activityTitle, onClose, onHome, acti
           </button>
           <div className="flex-1 flex justify-center">
             <button onClick={() => { onClose(); onHome?.(); }} className="focus:outline-none">
-              <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored." className="h-8 w-auto" />
+              <img src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68" alt="Bored." className="h-8 w-auto" />
             </button>
           </div>
           <div className="w-16" />
@@ -2848,7 +2863,7 @@ function WaitlistModal({ date, adventureId, activityTitle, onClose, onHome, acti
             <div className="lg:w-80 flex-shrink-0">
               <div className="rounded-2xl bg-white text-brutal-black overflow-hidden sticky top-8">
                 {activityImage && <div className="flex items-center gap-3 p-5 border-b border-black/8">
-                  <img src={activityImage} alt="" className="w-14 h-14 rounded-xl object-cover" />
+                  <img src={img(activityImage, 160)} alt="" loading="lazy" className="w-14 h-14 rounded-xl object-cover" />
                   <div>
                     <p className="font-body font-bold text-base leading-tight">{activityTitle}</p>
                     {activityLocation && <p className="font-body text-[10px] uppercase tracking-widest text-black/35 mt-0.5">{activityLocation}</p>}
@@ -3104,7 +3119,7 @@ function ConquistaPage({ onBack, onHome }: { onBack: () => void; onHome?: () => 
         </button>
         <div className="pointer-events-auto">
           <button onClick={onHome} className="focus:outline-none">
-            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored Originals" className="h-12 w-auto drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)] hover:opacity-70 transition-opacity" />
+            <img src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68" alt="Bored Originals" className="h-12 w-auto drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)] hover:opacity-70 transition-opacity" />
           </button>
         </div>
         <a href="#datas" className="pointer-events-auto bg-neon-yellow text-brutal-black px-5 py-2.5 text-xs font-body font-bold uppercase tracking-[0.1em] rounded-2xl hover:bg-white transition-colors">
@@ -3884,7 +3899,7 @@ function PrivacidadePage({ onBack, onHome }: { onBack: () => void; onHome?: () =
           <button onClick={onBack} className="text-white/50 font-body text-xs uppercase tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
           <div className="w-px h-3 bg-white/20" />
           <button onClick={onHome} className="focus:outline-none">
-            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored" className="h-7 w-auto hover:opacity-70 transition-opacity" />
+            <img src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68" alt="Bored" className="h-7 w-auto hover:opacity-70 transition-opacity" />
           </button>
         </div>
       </motion.nav>
@@ -4425,7 +4440,7 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
           <button onClick={onBack} className="text-white/50 font-body text-[10px] md:text-xs uppercase tracking-[0.1em] md:tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
           <div className="w-px h-3 bg-white/20" />
           <button onClick={onHome} className="focus:outline-none">
-            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored Originals" className="h-5 md:h-7 w-auto hover:opacity-70 transition-opacity" />
+            <img src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68" alt="Bored Originals" className="h-5 md:h-7 w-auto hover:opacity-70 transition-opacity" />
           </button>
         </div>
         <button onClick={scrollToTabs} className="pointer-events-auto bg-neon-yellow text-brutal-black px-3 md:px-5 py-2 md:py-2.5 text-[10px] md:text-xs font-body font-bold uppercase tracking-[0.08em] md:tracking-[0.1em] rounded-xl md:rounded-2xl hover:bg-white transition-colors">
@@ -4435,7 +4450,7 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
 
       {/* ── HERO — foto centrada + título centrado ── */}
       <div className="relative w-full overflow-hidden hero-section">
-        <img src={data.heroImage} alt={data.title} className="absolute inset-0 w-full h-full object-cover saturate-[1.1]" />
+        <img src={img(data.heroImage, 1280)} alt={data.title} loading="eager" fetchPriority="high" className="absolute inset-0 w-full h-full object-cover saturate-[1.1]" />
         <div className="absolute inset-0 bg-gradient-to-t from-brutal-black via-brutal-black/20 to-brutal-black/55" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-20 px-6 text-center z-10">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.2 }}>
@@ -4523,7 +4538,7 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
               className="relative overflow-hidden rounded-3xl w-full h-full"
               style={{ minHeight: 480 }}
             >
-              <img src={data.highlights[0]} alt="" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+              <img src={img(data.highlights[0], 900)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
             </motion.div>
           ) : data.highlights?.length > 1 ? (
             <motion.div
@@ -4532,7 +4547,7 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
             >
               {data.highlights.slice(0, 4).map((src: string, i: number) => (
                 <div key={i} className={`relative overflow-hidden rounded-2xl ${i === 0 ? 'row-span-2' : ''}`} style={{ aspectRatio: i === 0 ? undefined : '4/3', minHeight: i === 0 ? 340 : undefined }}>
-                  <img src={src} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                  <img src={img(src, 600)} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
                 </div>
               ))}
             </motion.div>
@@ -4734,8 +4749,9 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
                 style={{ height: 620 }}
               >
                 <img
-                  src={cur.image}
+                  src={img(cur.image, 900)}
                   alt={cur.title}
+                  loading="lazy"
                   className="w-full h-full object-cover saturate-[1.1]"
                 />
               </motion.div>
@@ -4751,7 +4767,7 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
         <div className="flex flex-col md:flex-row" style={{ minHeight: 760 }}>
           {/* Foto */}
           <div className="w-full md:w-[62%] relative" style={{ minHeight: 380, height: '55vw', maxHeight: 760 }}>
-            <img src={data.review.image} alt="" className="absolute inset-0 w-full h-full object-cover object-center saturate-[1.1] md:rounded-none" style={{ borderRadius: '0' }} />
+            <img src={img(data.review.image, 1100)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover object-center saturate-[1.1] md:rounded-none" style={{ borderRadius: '0' }} />
           </div>
           {/* Quote */}
           <div className="md:w-[38%] bg-brutal-black flex flex-col items-center justify-center px-8 md:px-14 py-12 md:py-16 text-center">
@@ -4933,7 +4949,7 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
               className={`group relative overflow-hidden rounded-2xl ${photo.tall ? 'row-span-2' : ''}`}
               style={{ aspectRatio: photo.tall ? undefined : '4/3', minHeight: photo.tall ? 420 : undefined }}
             >
-              <img src={photo.src} alt="" className="w-full h-full object-cover saturate-[1.1] group-hover:scale-105 transition-transform duration-700" />
+              <img src={img(photo.src, 600)} alt="" loading="lazy" className="w-full h-full object-cover saturate-[1.1] group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
             </motion.div>
           ));
@@ -4964,7 +4980,7 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
               className="group relative rounded-3xl overflow-hidden cursor-pointer"
               style={{ aspectRatio: '3/4' }}
             >
-              <img src={o.card_image ?? o.hero_image} alt={o.title} className="w-full h-full object-cover saturate-[1.1] group-hover:scale-105 transition-transform duration-700" />
+              <img src={img(o.card_image ?? o.hero_image, 500)} alt={o.title} loading="lazy" className="w-full h-full object-cover saturate-[1.1] group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/15 to-black/30" />
               <div className="absolute top-5 right-5">
                 <span className="text-white/20 font-body font-extrabold text-xs tabular-nums">{String(i + 1).padStart(2, '0')}</span>
@@ -5092,7 +5108,7 @@ function ApoioPage({ onBack, onHome }: { onBack: () => void; onHome?: () => void
           <button onClick={onBack} className="text-white/50 font-body text-xs uppercase tracking-[0.15em] hover:text-white transition-colors">← Voltar</button>
           <div className="w-px h-3 bg-white/20" />
           <button onClick={onHome} className="focus:outline-none">
-            <img src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/Check%20In%20EdItory.png" alt="Bored" className="h-7 w-auto hover:opacity-70 transition-opacity" />
+            <img src="https://wsrv.nl/?url=https%3A%2F%2Fprifvutxutzcspiukzek.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2FOriginals%2FCheck%2520In%2520EdItory.png&w=220&output=webp&q=68" alt="Bored" className="h-7 w-auto hover:opacity-70 transition-opacity" />
           </button>
         </div>
       </motion.nav>
