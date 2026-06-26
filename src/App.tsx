@@ -1016,7 +1016,8 @@ Lisboa até ao Qatar à boleia, atravessar os Himalaias de scooter, ir de Luanda
         >
           <BgVideo
             src="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/nos.mp4"
-            poster="https://prifvutxutzcspiukzek.supabase.co/storage/v1/object/public/Originals/neve.jpeg"
+            mobileSrc="/nos-mobile.mp4"
+            poster="/nos-poster.jpg"
           />
         </motion.div>
 
