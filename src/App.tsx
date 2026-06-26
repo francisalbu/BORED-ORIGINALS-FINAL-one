@@ -50,16 +50,18 @@ function img(url: string | null | undefined, width = 800, quality = 68): string 
 
 /**
  * Background video that defers heavy downloads.
- * - Shows a lightweight poster image instantly (no blank/black screen).
- * - Only loads & plays the real video on desktop AND when scrolled into view.
- * - Mobile / data-saver users get just the poster — no multi-MB download.
+ * - Shows a sharp poster image instantly (no blank/black/blurry screen).
+ * - Desktop loads `src`; mobile loads the lightweight `mobileSrc` if provided,
+ *   so phones still get a MOVING hero without pulling tens of MB.
+ * - If no mobileSrc (and not allowMobile), mobile keeps the poster only.
+ * - Data-saver users always get just the poster.
  * Fills its nearest positioned (relative/absolute) ancestor.
  */
-function BgVideo({ src, poster, allowMobile = false, onReady }: { src: string; poster?: string; allowMobile?: boolean; onReady?: () => void }) {
+function BgVideo({ src, mobileSrc, poster, allowMobile = false, onReady }: { src: string; mobileSrc?: string; poster?: string; allowMobile?: boolean; onReady?: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const posterRef = useRef<HTMLImageElement>(null);
-  const [play, setPlay] = useState(false);
-  // True when this instance will never load a video (mobile / data-saver),
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  // True when this instance will never load a video (mobile w/o source / data-saver),
   // so the poster image is the final frame and signals readiness on its own.
   const posterOnly = useRef(false);
   const readyFired = useRef(false);
@@ -75,17 +77,18 @@ function BgVideo({ src, poster, allowMobile = false, onReady }: { src: string; p
     if (!el) return;
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
     const saveData = (navigator as any).connection?.saveData === true;
-    // On mobile (or data-saver) keep the poster only — never pull tens of MB.
-    if ((isMobile && !allowMobile) || saveData) {
+    // Pick the right source: mobile gets the light version (or the desktop one
+    // only if allowMobile), desktop gets the full one.
+    const chosen = isMobile ? (mobileSrc ?? (allowMobile ? src : null)) : src;
+    if (saveData || !chosen) {
       posterOnly.current = true;
-      // If the poster is already cached/painted, we are ready right away.
       if (posterRef.current?.complete) fireReady();
       return;
     }
     const io = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
-          setPlay(true);
+          setVideoSrc(chosen);
           io.disconnect();
         }
       },
@@ -93,7 +96,7 @@ function BgVideo({ src, poster, allowMobile = false, onReady }: { src: string; p
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [allowMobile, fireReady]);
+  }, [src, mobileSrc, allowMobile, fireReady]);
 
   return (
     <div ref={ref} className="absolute inset-0 w-full h-full overflow-hidden">
@@ -107,7 +110,7 @@ function BgVideo({ src, poster, allowMobile = false, onReady }: { src: string; p
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-      {play && (
+      {videoSrc && (
         <video
           autoPlay
           loop
@@ -118,7 +121,7 @@ function BgVideo({ src, poster, allowMobile = false, onReady }: { src: string; p
           onPlaying={fireReady}
           onCanPlay={fireReady}
           className="absolute inset-0 w-full h-full object-cover"
-          src={src}
+          src={videoSrc}
         />
       )}
     </div>
@@ -273,6 +276,7 @@ function Hero() {
     <div className="relative w-full overflow-hidden bg-brutal-black hero-section">
       <BgVideo
         src="https://storage.googleapis.com/bored_tourist_media/videos/videofinal.mp4"
+        mobileSrc="/hero-mobile.mp4"
         poster="/poster-home.jpg"
         onReady={() => (window as any).__hideSplash?.()}
       />
