@@ -4541,7 +4541,7 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
             </div>
           </motion.div>
 
-          {/* Direita — vídeo ou highlights */}
+          {/* Direita — vídeo (só se existir) */}
           {(data as any).heroVideo ? (
             <motion.div
               initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
@@ -4549,25 +4549,6 @@ function ActivityPage({ activityIndex, onBack, onHome, autoBook = false, allAdve
               style={{ aspectRatio: '16/9' }}
             >
               <BgVideo src={(data as any).heroVideo} mobileSrc={mobileVideo((data as any).heroVideo)} poster={img(data.heroImage, 900)} />
-            </motion.div>
-          ) : data.highlights?.length === 1 ? (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
-              className="relative overflow-hidden rounded-3xl w-full h-full"
-              style={{ minHeight: 480 }}
-            >
-              <img src={img(data.highlights[0], 900)} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-            </motion.div>
-          ) : data.highlights?.length > 1 ? (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
-              className="grid grid-cols-2 gap-3 w-full"
-            >
-              {data.highlights.slice(0, 4).map((src: string, i: number) => (
-                <div key={i} className={`relative overflow-hidden rounded-2xl ${i === 0 ? 'row-span-2' : ''}`} style={{ aspectRatio: i === 0 ? undefined : '4/3', minHeight: i === 0 ? 340 : undefined }}>
-                  <img src={img(src, 600)} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-                </div>
-              ))}
             </motion.div>
           ) : null}
         </div>
