@@ -1324,6 +1324,11 @@ function AllExperiencesPage({ onBack, onHome, onActivity, onBooking, adventures 
   ];
 
 
+  // Berlengas pinned first when no price sort active
+  const isBerlengas = (item: any) =>
+    (item.title ?? '').toLowerCase().includes('berlengas') ||
+    (item.adventureId && adventures.find((a: any) => a.id === item.adventureId)?.slug?.includes('berlengas'));
+
   if (priceSort !== 'none') {
     items.sort((a, b) => {
       const pa = (a as any).priceNum || 0;
@@ -1335,6 +1340,13 @@ function AllExperiencesPage({ onBack, onHome, onActivity, onBooking, adventures 
       if (aNoPrice) return 1;
       if (bNoPrice) return -1;
       return priceSort === 'asc' ? pa - pb : pb - pa;
+    });
+  } else {
+    items.sort((a, b) => {
+      const aB = isBerlengas(a) ? -1 : 0;
+      const bB = isBerlengas(b) ? -1 : 0;
+      if (aB !== bB) return aB - bB;
+      return (a as any).index - (b as any).index;
     });
   }
 
